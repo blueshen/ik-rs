@@ -3,6 +3,7 @@ use crate::core::lexeme_path::LexemePath;
 use crate::core::ordered_linked_list::{Node, OrderedLinkedList};
 use std::collections::{BTreeSet, HashMap};
 use std::ptr::NonNull;
+use crate::core::ik_segmenter::TokenMode;
 
 // IK分词歧义裁决器
 pub struct IKArbitrator {}
@@ -16,7 +17,7 @@ impl IKArbitrator {
     pub unsafe fn process(
         &mut self,
         org_lexemes: &mut OrderedLinkedList<Lexeme>,
-        use_smart: bool,
+        mode: TokenMode,
     ) -> HashMap<usize, LexemePath> {
         // org_lexemes.traverse();
         let mut path_map = HashMap::<usize, LexemePath>::new();
@@ -26,13 +27,12 @@ impl IKArbitrator {
             let org_lexeme = &(cur_node.as_ref().unwrap().as_ref().val);
             if !cross_path.add_cross_lexeme(org_lexeme) {
                 //找到与crossPath不相交的下一个crossPath
-                if cross_path.size() == 1 || !use_smart {
+                if cross_path.size() == 1 || !(mode == TokenMode::SEARCH) {
                     //crossPath没有歧义 或者 不做歧义处理
                     //直接输出当前crossPath
                     path_map.insert(cross_path.get_path_begin() as usize, cross_path);
                 } else {
                     //对当前的crossPath进行歧义处理
-                    // let head_cell = cross_path.get_head();
                     let judge_result = self.judge(cur_node);
                     //输出歧义处理结果judgeResult
                     path_map.insert(
@@ -48,10 +48,9 @@ impl IKArbitrator {
         }
 
         //处理最后的path
-        if cross_path.size() == 1 || !use_smart {
+        if cross_path.size() == 1 || !(mode == TokenMode::SEARCH) {
             // crossPath没有歧义 或者 不做歧义处理
             // 直接输出当前crossPath
-            // context.add_lexeme_path(&cross_path);
             path_map.insert(cross_path.get_path_begin() as usize, cross_path);
         } else {
             // 对当前的crossPath进行歧义处理
@@ -109,7 +108,7 @@ impl IKArbitrator {
         cur_node: Option<&'a NonNull<Node<Lexeme>>>,
         option: &mut LexemePath,
     ) -> Vec<Option<&NonNull<Node<Lexeme>>>> {
-        //发生冲突的Lexeme栈, vec实现 todo!
+        //发生冲突的Lexeme栈
         let mut conflict_stack: Vec<Option<&NonNull<Node<Lexeme>>>> = Vec::new();
         //迭代遍历Lexeme链表
         let mut cur = cur_node;
