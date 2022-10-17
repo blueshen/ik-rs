@@ -58,9 +58,6 @@ impl IKSegmenter {
                 .arbitrator
                 .process(&mut origin_lexemes, mode);
         }
-        // for (k,v) in self.path_map.iter(){
-        //     println!("k={}, v={}", k, v);
-        // }
         //将分词结果输出到结果集，并处理未切分的单个CJK字符
         let mut results = self.output_to_result(&mut path_map, input);
         let mut final_results = Vec::new();
@@ -95,7 +92,7 @@ impl IKSegmenter {
      */
     pub fn output_to_result(&mut self, path_map: &mut HashMap<usize, LexemePath>, input: &str) -> LinkedList<Lexeme> {
         let mut results = LinkedList::new();
-        let mut index = 0;
+        let mut index = 0usize;
         let char_count = input.chars().count();
         while index < char_count {
             let curr_char = input.chars().nth(index).unwrap();
@@ -154,9 +151,6 @@ impl IKSegmenter {
 
     // 组合词元
     pub fn compound(&mut self, results: &mut LinkedList<Lexeme>, result: &mut Lexeme) {
-        // if !self.use_smart {
-        //     return;
-        // }
         //数量词合并处理
         if !results.is_empty() {
             if LexemeType::ARABIC == result.lexeme_type {
@@ -195,37 +189,38 @@ mod test {
     use super::*;
 
     #[test]
-    fn test_segment() {
+    fn test_index_segment() {
         let mut ik = IKSegmenter::new();
         let texts = _get_input_texts();
         for text in texts {
             let mut tokens = ik.tokenize(text, TokenMode::INDEX);
             for token in tokens {
-                    println!("{:?}", token);
+                println!("{:?}", token);
             }
             println!("{}", "----------------------")
         }
     }
 
     #[test]
-    fn test_smart_segment() {
+    fn test_search_segment() {
         let mut ik = IKSegmenter::new();
         let texts = _get_input_texts();
         for text in texts {
             let tokens = ik.tokenize(text, TokenMode::SEARCH);
             for token in tokens {
-                    println!("{:?}", token);
-                println!("{}", "----------------------")
+                println!("{:?}", token);
             }
+            println!("{}", "----------------------")
         }
     }
 
     fn _get_input_texts() -> Vec<&'static str> {
         let texts = vec![
-            "张三说的确实在理",
-            "中华人民共和国",
-            "zhiyi.shen@gmail.com",
-            "我感觉很happy,并且不悲伤!",
+            // "张三说的确实在理",
+            // "中华人民共和国",
+            // "zhiyi.shen@gmail.com",
+            // "我感觉很happy,并且不悲伤!",
+            "结婚的和尚未结婚的",
         ];
         texts
     }

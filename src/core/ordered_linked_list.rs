@@ -242,15 +242,11 @@ impl<T: PartialOrd> OrderedLinkedList<T> {
         Ok(())
     }
 
-    pub fn get_by_idx(&self, idx: usize) -> Result<Option<&T>, Box<dyn Error>> {
+    pub fn get(&self, idx: usize) -> Result<Option<&T>, Box<dyn Error>> {
         let len = self.length;
-
         if idx >= len {
             return Err(Box::new(IndexOutOfRangeError {}));
         }
-
-        // Iterate towards the node at the given index, either from the start or the end,
-        // depending on which would be faster.
         let offset_from_end = len - idx - 1;
         let mut cur;
         if idx <= offset_from_end {
@@ -284,12 +280,12 @@ impl<T: PartialOrd> OrderedLinkedList<T> {
         unsafe { Ok(cur.as_ref().map(|node| &node.as_ref().val)) }
     }
 
-    pub fn get_by_idx_mut(&self, idx: usize) -> Result<Option<&mut T>, Box<dyn Error>> {
+    pub fn get_mut(&self, idx: usize) -> Result<Option<&mut T>, Box<dyn Error>> {
         let mut cur = self._get_by_idx_mut(idx)?;
         unsafe { Ok(cur.as_mut().map(|node| &mut node.as_mut().val)) }
     }
 
-    fn insert_by_idx(&mut self, idx: usize, data: T) -> Result<(), Box<dyn Error>> {
+    fn insert_to(&mut self, idx: usize, data: T) -> Result<(), Box<dyn Error>> {
         let len = self.length;
 
         if idx > len {
@@ -324,7 +320,7 @@ impl<T: PartialOrd> OrderedLinkedList<T> {
     /// Removes the element at the given index and returns it.
     ///
     /// This operation should compute in *O*(*n*) time.
-    pub fn remove_by_idx(&mut self, idx: usize) -> Result<T, Box<dyn Error>> {
+    pub fn remove(&mut self, idx: usize) -> Result<T, Box<dyn Error>> {
         let len = self.length;
 
         if idx >= len {
@@ -386,9 +382,6 @@ impl<T: PartialOrd> OrderedLinkedList<T> {
         if idx >= len {
             return Err(Box::new(IndexOutOfRangeError {}));
         }
-
-        // Iterate towards the node at the given index, either from the start or the end,
-        // depending on which would be faster.
         let offset_from_end = len - idx - 1;
         let mut cur;
         if idx <= offset_from_end {
@@ -421,12 +414,7 @@ impl<T: PartialOrd> OrderedLinkedList<T> {
 
         Ok(cur)
     }
-    /// Unlinks the specified node from the current list.
-    ///
-    /// Warning: this will not check that the provided node belongs to the current list.
-    ///
-    /// This method takes care not to create mutable references to `element`,
-    /// to maintain validity of aliasing pointers.
+
     #[inline]
     fn unlink_node(&mut self, mut node: NonNull<Node<T>>) {
         let node = unsafe { node.as_mut() }; // this one is ours now, we can create an &mut.

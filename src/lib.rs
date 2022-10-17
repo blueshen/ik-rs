@@ -43,7 +43,7 @@ impl Tokenizer for IkTokenizer {
     fn token_stream<'a>(&self, text: &'a str) -> BoxTokenStream<'a> {
         let mut indices = text.char_indices().collect::<Vec<_>>();
         indices.push((text.len(), '\0'));
-        let orig_tokens = GLOBAL_IK.lock().unwrap().tokenize(text,  TokenMode::INDEX);
+        let orig_tokens = GLOBAL_IK.lock().unwrap().tokenize(text,  TokenMode::SEARCH);
         let mut tokens = Vec::new();
         for token in orig_tokens.iter() {
             tokens.push(Token {
@@ -80,7 +80,7 @@ mod tests {
         // check tokenized text
         assert_eq!(
             token_text,
-            vec!["张华", "考上", "上了", "北京大学", "北京大", "北京", "大学", "李萍", "进了", "中等", "技术学校", "技术", "学校", "我", "在", "百货公司", "百货", "百", "货", "公司", "当", "售货员", "售货", "货员", "我们", "我", "们", "都有", "有", "光明", "的", "前途"]
+            vec!["张华", "考", "上了", "北京大学", "李萍", "进了", "中等", "技术学校", "我", "在", "百货公司", "当", "售货员", "我们", "都有", "光明", "的", "前途"]
         );
     }
 }

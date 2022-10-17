@@ -19,7 +19,6 @@ impl IKArbitrator {
         org_lexemes: &mut OrderedLinkedList<Lexeme>,
         mode: TokenMode,
     ) -> HashMap<usize, LexemePath> {
-        // org_lexemes.traverse();
         let mut path_map = HashMap::<usize, LexemePath>::new();
         let mut cross_path = LexemePath::new();
         let mut cur_node = org_lexemes.head_node();
@@ -33,7 +32,7 @@ impl IKArbitrator {
                     path_map.insert(cross_path.get_path_begin() as usize, cross_path);
                 } else {
                     //对当前的crossPath进行歧义处理
-                    let judge_result = self.judge(cur_node);
+                    let judge_result = self.judge(cross_path.get_head());
                     //输出歧义处理结果judgeResult
                     path_map.insert(
                         judge_result.as_ref().unwrap().get_path_begin() as usize,
@@ -77,17 +76,14 @@ impl IKArbitrator {
         let mut option = LexemePath::new();
         //对crossPath进行一次遍历,同时返回本次遍历中有冲突的Lexeme栈
         let mut lexeme_stack = self.forward_path(cur_node, &mut option);
-
         //当前词元链并非最理想的，加入候选路径集合
         path_options.insert(option.clone());
-
-        //存在歧义词，处理
         let mut c;
         while !lexeme_stack.is_empty() {
             c = lexeme_stack.pop();
-            //回滚词元链
+            //rollback path
             self.back_path(c.unwrap(), &mut option);
-            //从歧义词位置开始，递归，生成可选方案
+            // forward path
             self.forward_path(c.unwrap(), &mut option);
             path_options.insert(option.clone());
         }

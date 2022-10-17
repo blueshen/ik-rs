@@ -88,17 +88,17 @@ impl LexemePath {
             self.payload_length -= tail.as_ref().unwrap().get_length();
             let new_tail = self.lexeme_list.peek_back();
             self.path_end =
-                (new_tail.unwrap().get_begin() as i32) + (new_tail.unwrap().get_length() as i32);
+                (new_tail.as_ref().unwrap().get_begin() as i32) + (new_tail.as_ref().unwrap().get_length() as i32);
         }
         return tail;
     }
 
     // 检测词元位置交叉（有歧义的切分）
     pub fn check_cross(&self, lexeme: &Lexeme) -> bool {
-        let cross = (((lexeme.get_begin()) as i32 >= self.path_begin)
-            && (((lexeme.get_begin()) as i32) < self.path_end))
-            || ((self.path_begin >= lexeme.get_begin() as i32)
-                && (self.path_begin < (lexeme.get_begin() as i32) + (lexeme.get_length() as i32)));
+        let l_begin = lexeme.get_begin() as i32;
+        let l_length = lexeme.get_length() as i32;
+        let cross = (l_begin >= self.path_begin && l_begin < self.path_end)
+            || (self.path_begin >= l_begin && self.path_begin < l_begin + l_length);
         cross
     }
 
