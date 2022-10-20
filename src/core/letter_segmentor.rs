@@ -94,13 +94,12 @@ impl LetterSegmenter {
                     self.end = cursor as i32;
                 } else {
                     //遇到非Letter字符，输出词元
-                    let mut new_lexeme = Lexeme::new(
+                    let new_lexeme = Lexeme::new(
                         0,
                         self.start as usize,
                         (self.end - self.start + 1) as usize,
                         LexemeType::LETTER,
                     );
-//                    new_lexeme.parse_lexeme_text(input);
                     new_lexemes.push(new_lexeme);
                     self.start = -1;
                     self.end = -1;
@@ -109,13 +108,12 @@ impl LetterSegmenter {
         }
 
         if self.end == (char_count - 1) as i32 {
-            let mut new_lexeme = Lexeme::new(
+            let new_lexeme = Lexeme::new(
                 0,
                 self.start as usize,
                 (self.end - self.start + 1) as usize,
                 LexemeType::LETTER,
             );
-//            new_lexeme.parse_lexeme_text(input);
             new_lexemes.push(new_lexeme);
             self.start = -1;
             self.end = -1;
@@ -144,13 +142,12 @@ impl LetterSegmenter {
                     self.english_end = cursor as i32;
                 } else {
                     //遇到非English字符,输出词元
-                    let mut new_lexeme = Lexeme::new(
+                    let new_lexeme = Lexeme::new(
                         0,
                         self.english_start as usize,
                         (self.english_end - self.english_start + 1) as usize,
                         LexemeType::ENGLISH,
                     );
-//                    new_lexeme.parse_lexeme_text(input);
                     new_lexemes.push(new_lexeme);
                     self.english_start = -1;
                     self.english_end = -1;
@@ -159,13 +156,12 @@ impl LetterSegmenter {
         }
         // 结束了
         if self.english_end == (char_count - 1) as i32 {
-            let mut new_lexeme = Lexeme::new(
+            let new_lexeme = Lexeme::new(
                 0,
                 self.english_start as usize,
                 (self.english_end - self.english_start + 1) as usize,
                 LexemeType::ENGLISH,
             );
-//            new_lexeme.parse_lexeme_text(input);
             new_lexemes.push(new_lexeme);
             self.english_start = -1;
             self.english_end = -1;
@@ -198,13 +194,12 @@ impl LetterSegmenter {
                     //不输出数字，但不标记结束
                 } else {
                     // 遇到非Arabic字符,输出词元
-                    let mut new_lexeme = Lexeme::new(
+                    let new_lexeme = Lexeme::new(
                         0,
                         self.arabic_start as usize,
                         (self.arabic_end - self.arabic_start + 1) as usize,
                         LexemeType::ARABIC,
                     );
-//                    new_lexeme.parse_lexeme_text(input);
                     new_lexemes.push(new_lexeme);
                     self.arabic_start = -1;
                     self.arabic_end = -1;
@@ -212,13 +207,12 @@ impl LetterSegmenter {
             }
         }
         if self.arabic_end == (char_count - 1) as i32 {
-            let mut new_lexeme = Lexeme::new(
+            let new_lexeme = Lexeme::new(
                 0,
                 self.arabic_start as usize,
                 (self.arabic_end - self.arabic_start + 1) as usize,
                 LexemeType::ARABIC,
             );
-//            new_lexeme.parse_lexeme_text(input);
             new_lexemes.push(new_lexeme);
             self.arabic_start = -1;
             self.arabic_end = -1;

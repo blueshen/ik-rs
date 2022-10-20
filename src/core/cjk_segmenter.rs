@@ -29,7 +29,6 @@ impl Segmenter for CJKSegmenter {
                         //输出当前的词
                         let new_lexeme =
                             Lexeme::new(0, hit.begin, hit.end - hit.begin + 1, LexemeType::CNWORD);
-                        // new_lexeme.parse_lexeme_text(input);
                         new_lexemes.push(new_lexeme);
                     }
                 }

@@ -51,7 +51,7 @@ impl IKSegmenter {
                 origin_lexemes.insert(lexeme).expect("error!");
             }
         }
-        let mut path_map = HashMap::new();
+        let mut path_map;
         //对分词进行歧义处理
         unsafe {
             path_map = self

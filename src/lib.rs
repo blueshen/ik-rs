@@ -9,7 +9,7 @@ use crate::core::ik_segmenter::{IKSegmenter, TokenMode};
 use tantivy::tokenizer::{BoxTokenStream, Token, TokenStream, Tokenizer};
 
 pub static GLOBAL_IK: Lazy<Mutex<IKSegmenter>> = Lazy::new(|| {
-    let mut ik =  IKSegmenter::new();
+    let ik =  IKSegmenter::new();
     Mutex::new(ik)
 });
 

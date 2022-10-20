@@ -10,18 +10,8 @@ const SEGMENTER_NAME: &str = "QUAN_SEGMENTER";
 
 #[derive(Debug)]
 pub struct CnQuantifierSegmenter {
-    /**
-     * 词元的开始位置，
-     * 同时作为子分词器状态标识
-     * 当start > -1 时，标识当前的分词器正在处理字符
-     */
     n_start: i32,
-    /**
-     * 记录词元结束位置
-     * end记录的是在词元中最后一个出现的合理的数词结束
-     */
     n_end: i32,
-
     chn_number_chars: HashSet<char>,
 }
 
@@ -77,13 +67,12 @@ impl CnQuantifierSegmenter {
                     self.n_end = cursor as i32;
                 } else {
                     //输出数词
-                    let mut new_lexeme = Lexeme::new(
+                    let new_lexeme = Lexeme::new(
                         0,
                         self.n_start as usize,
                         (self.n_end - self.n_start + 1) as usize,
                         LexemeType::CNUM,
                     );
-//                    new_lexeme.parse_lexeme_text(input);
                     new_lexemes.push(new_lexeme);
                     //重置头尾指针
                     self.n_start = -1;
@@ -94,13 +83,12 @@ impl CnQuantifierSegmenter {
             //缓冲区已经用完，还有尚未输出的数词
             if self.n_start != -1 && self.n_end != -1 {
                 //输出数词
-                let mut new_lexeme = Lexeme::new(
+                let new_lexeme = Lexeme::new(
                     0,
                     self.n_start as usize,
                     (self.n_end - self.n_start + 1) as usize,
                     LexemeType::CNUM,
                 );
-//                new_lexeme.parse_lexeme_text(input);
                 new_lexemes.push(new_lexeme);
                 //重置头尾指针
                 self.n_start = -1;
@@ -128,13 +116,12 @@ impl CnQuantifierSegmenter {
                     for hit in hit_options.iter() {
                         if hit.is_match() {
                             //输出当前的词
-                            let mut new_lexeme = Lexeme::new(
+                            let new_lexeme = Lexeme::new(
                                 0,
                                 hit.begin,
                                 hit.end - hit.begin + 1,
                                 LexemeType::COUNT,
                             );
-//                            new_lexeme.parse_lexeme_text(input);
                             new_lexemes.push(new_lexeme);
                         }
                     }
