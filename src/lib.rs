@@ -14,7 +14,9 @@ pub static GLOBAL_IK: Lazy<Mutex<IKSegmenter>> = Lazy::new(|| {
 });
 
 #[derive(Clone)]
-pub struct IkTokenizer;
+pub struct IkTokenizer {
+    mode: TokenMode,
+}
 
 pub struct IkTokenStream {
     tokens: Vec<Token>,
@@ -39,11 +41,20 @@ impl TokenStream for IkTokenStream {
     }
 }
 
+impl IkTokenizer {
+    pub fn new(mode: TokenMode) -> Self {
+        Self{
+            mode
+        }
+    }
+}
+
 impl Tokenizer for IkTokenizer {
+
     fn token_stream<'a>(&self, text: &'a str) -> BoxTokenStream<'a> {
         let mut indices = text.char_indices().collect::<Vec<_>>();
         indices.push((text.len(), '\0'));
-        let orig_tokens = GLOBAL_IK.lock().unwrap().tokenize(text,  TokenMode::SEARCH);
+        let orig_tokens = GLOBAL_IK.lock().unwrap().tokenize(text,  self.mode);
         let mut tokens = Vec::new();
         for token in orig_tokens.iter() {
             tokens.push(Token {
@@ -60,10 +71,12 @@ impl Tokenizer for IkTokenizer {
 
 #[cfg(test)]
 mod tests {
+    use crate::TokenMode;
+
     #[test]
     fn tantivy_ik_works() {
         use tantivy::tokenizer::*;
-        let tokenizer = crate::IkTokenizer {};
+        let tokenizer = crate::IkTokenizer::new(TokenMode::SEARCH);
         let mut token_stream = tokenizer.token_stream(
             "张华考上了北京大学；李萍进了中等技术学校；我在百货公司当售货员：我们都有光明的前途",
         );
