@@ -2,14 +2,14 @@
 name = "ik-rs"
 version = "0.1.0"
 authors = ["blueshen <zhiyi.shen@gmail.com>"]
-license = "MIT"
+license = "LGPL-2.1-only"
 categories = ["database-implementations", "data-structures"]
-description = """Search engine library"""
-documentation = ""
-homepage = ""
-repository = ""
+description = """chinese segment, ik-analyzer for rust"""
+documentation = "https://docs.rs/ik-rs"
+homepage = "https://github.com/blueshen/ik-rs"
+repository = "https://github.com/blueshen/ik-rs"
 readme = "README.md"
-keywords = ["search", "information", "retrieval"]
+keywords = ["search", "information", "retrieval", "tantivy", "ik-analyzer"]
 edition = "2021"
 
 [dependencies]
