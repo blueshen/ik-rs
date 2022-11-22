@@ -1,0 +1,8 @@
+main_dict: dict/main2012.dic
+quantifier_dict: dict/quantifier.dic
+stop_word_dict: dict/stopword.dic
+ext_dicts:
+  - dict/ext_dict/ext.dic
+ext_stop_word_dicts:
+  - dict/ext_stop_word/stop.dic
+use_smart: false
