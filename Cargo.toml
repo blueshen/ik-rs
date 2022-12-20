@@ -1,6 +1,6 @@
 [package]
 name = "ik-rs"
-version = "0.1.2"
+version = "0.2.0"
 authors = ["blueshen <zhiyi.shen@gmail.com>"]
 license = "LGPL-2.1-only"
 categories = ["database-implementations", "data-structures"]
@@ -17,8 +17,6 @@ serde = { version = "1", features = ["derive"] }
 serde_yaml = "0.9.11"
 unicode-blocks = "0.1.4"
 once_cell = "1.15.0"
-
-tantivy = "0.18.1"
 lazy_static = "1.4.0"
 
 [dev-dependencies]
