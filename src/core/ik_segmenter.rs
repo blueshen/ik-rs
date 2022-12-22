@@ -23,9 +23,6 @@ pub struct IKSegmenter {
     arbitrator: IKArbitrator,
 }
 
-unsafe impl Sync for IKSegmenter {}
-unsafe impl Send for IKSegmenter {}
-
 impl IKSegmenter {
     pub fn new() -> Self {
         let ik = IKSegmenter {
@@ -49,10 +46,7 @@ impl IKSegmenter {
                 origin_lexemes.insert(lexeme).expect("error!");
             }
         }
-        let mut path_map;
-        unsafe {
-            path_map = self.arbitrator.process(&mut origin_lexemes, mode);
-        }
+        let mut path_map = self.arbitrator.process(&mut origin_lexemes, mode);
         let mut results = self.output_to_result(&mut path_map, input);
         let mut final_results = Vec::new();
         // remove stop word

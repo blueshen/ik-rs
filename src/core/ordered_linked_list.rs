@@ -39,6 +39,10 @@ impl<T: PartialOrd> Node<T> {
     pub fn into_val(self: Box<Self>) -> T {
         self.val
     }
+
+    pub fn ref_val(&self) -> &T {
+        &self.val
+    }
 }
 
 pub struct OrderedLinkedList<T: PartialOrd> {
