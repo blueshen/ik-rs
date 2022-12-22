@@ -19,8 +19,8 @@ impl Segmenter for CnQuantifierSegmenter {
     fn analyze(&mut self, input: &str) -> Vec<Lexeme> {
         let mut new_lexemes: Vec<Lexeme> = Vec::new();
         let mut cnum_lexemes = self.process_cnumber(input);
-        let mut cquan_lexemes = self.process_count(input);
         new_lexemes.append(&mut cnum_lexemes);
+        let mut cquan_lexemes = self.process_count(input);
         new_lexemes.append(&mut cquan_lexemes);
         new_lexemes
     }
@@ -115,6 +115,8 @@ impl CnQuantifierSegmenter {
         if self.initial_state() {
             return false;
         }
+        // TODO(blueshen) check if previous lexeme is CNUM or ARABIC
+        // maybe should merge letter_segmentor + cn_quantifier segmentor
         return true;
     }
 

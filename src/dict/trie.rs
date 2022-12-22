@@ -162,8 +162,7 @@ impl Trie {
 
     pub fn match_word(&mut self, string_val: &str) -> Vec<Hit> {
         let root_node = &mut self.root;
-        let v: Vec<char> = string_val.chars().collect();
-        let len = v.len();
+        let len = string_val.chars().count();
         root_node.match_with_offset(string_val, 0, len)
     }
 
