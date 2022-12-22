@@ -42,7 +42,7 @@ impl CnQuantifierSegmenter {
         }
     }
 
-    pub fn process_cnumber(&mut self, input: &str) -> Vec<Lexeme> {
+    fn process_cnumber(&mut self, input: &str) -> Vec<Lexeme> {
         let mut new_lexemes = Vec::new();
         for (cursor, curr_char) in input.chars().enumerate() {
             let curr_char_type = char_type_of(curr_char);
@@ -82,7 +82,7 @@ impl CnQuantifierSegmenter {
         new_lexemes
     }
 
-    pub fn process_count(&mut self, input: &str) -> Vec<Lexeme> {
+    fn process_count(&mut self, input: &str) -> Vec<Lexeme> {
         let mut new_lexemes = Vec::new();
         if self.need_count_scan() {
             let char_count = utf8_len(input);

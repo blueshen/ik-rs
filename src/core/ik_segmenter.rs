@@ -68,7 +68,7 @@ impl IKSegmenter {
         final_results
     }
 
-    pub fn output_to_result(
+    fn output_to_result(
         &mut self,
         path_map: &mut HashMap<usize, LexemePath>,
         input: &str,
@@ -129,7 +129,7 @@ impl IKSegmenter {
         results
     }
 
-    pub fn compound(&mut self, results: &mut LinkedList<Lexeme>, result: &mut Lexeme) {
+    fn compound(&mut self, results: &mut LinkedList<Lexeme>, result: &mut Lexeme) {
         if !results.is_empty() {
             if LexemeType::ARABIC == result.lexeme_type {
                 let next_lexeme = results.front();

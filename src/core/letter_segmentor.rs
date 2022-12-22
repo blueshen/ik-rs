@@ -50,8 +50,8 @@ impl LetterSegmenter {
     }
 
     /// mix letter
-    /// windos2000 | zhiyi.shen@gmail.com
-    pub fn process_mix_letter(&mut self, input: &str) -> Vec<Lexeme> {
+    /// windows2000 | zhiyi.shen@gmail.com
+    fn process_mix_letter(&mut self, input: &str) -> Vec<Lexeme> {
         let mut new_lexemes = Vec::new();
         let char_count = utf8_len(input);
         for (cursor, curr_char) in input.chars().enumerate() {
@@ -75,8 +75,7 @@ impl LetterSegmenter {
                         LexemeType::LETTER,
                     );
                     new_lexemes.push(new_lexeme);
-                    self.start = -1;
-                    self.end = -1;
+                    self.reset_mix_state();
                 }
             }
         }
@@ -89,8 +88,7 @@ impl LetterSegmenter {
                 LexemeType::LETTER,
             );
             new_lexemes.push(new_lexeme);
-            self.start = -1;
-            self.end = -1;
+            self.reset_mix_state();
         }
         new_lexemes
     }
@@ -117,8 +115,7 @@ impl LetterSegmenter {
                         LexemeType::ENGLISH,
                     );
                     new_lexemes.push(new_lexeme);
-                    self.english_start = -1;
-                    self.english_end = -1;
+                    self.reset_english_state();
                 }
             }
         }
@@ -130,8 +127,7 @@ impl LetterSegmenter {
                 LexemeType::ENGLISH,
             );
             new_lexemes.push(new_lexeme);
-            self.english_start = -1;
-            self.english_end = -1;
+            self.reset_english_state();
         }
         new_lexemes
     }
@@ -160,8 +156,7 @@ impl LetterSegmenter {
                         LexemeType::ARABIC,
                     );
                     new_lexemes.push(new_lexeme);
-                    self.arabic_start = -1;
-                    self.arabic_end = -1;
+                    self.reset_arabic_state();
                 }
             }
         }
@@ -173,17 +168,30 @@ impl LetterSegmenter {
                 LexemeType::ARABIC,
             );
             new_lexemes.push(new_lexeme);
-            self.arabic_start = -1;
-            self.arabic_end = -1;
+            self.reset_arabic_state();
         }
         new_lexemes
     }
+    fn reset_mix_state(&mut self) {
+        self.start = -1;
+        self.end = -1;
+    }
 
-    pub fn is_letter_connector(&self, input: char) -> bool {
+    fn reset_english_state(&mut self) {
+        self.english_start = -1;
+        self.english_end = -1;
+    }
+
+    fn reset_arabic_state(&mut self) {
+        self.arabic_start = -1;
+        self.arabic_end = -1;
+    }
+
+    fn is_letter_connector(&self, input: char) -> bool {
         LETTER_CONNECTOR.contains(&input)
     }
 
-    pub fn is_num_connector(&self, input: char) -> bool {
+    fn is_num_connector(&self, input: char) -> bool {
         NUM_CONNECTOR.contains(&input)
     }
 }

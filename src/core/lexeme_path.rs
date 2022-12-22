@@ -93,19 +93,19 @@ impl LexemePath {
     }
 
     pub fn get_path_begin(&self) -> i32 {
-        return self.path_begin;
+        self.path_begin
     }
 
     pub fn get_path_end(&self) -> i32 {
-        return self.path_end;
+        self.path_end
     }
 
     pub fn get_payload_length(&self) -> usize {
-        return self.payload_length;
+        self.payload_length
     }
 
     pub fn get_path_length(&self) -> usize {
-        return (self.path_end - self.path_begin) as usize;
+        (self.path_end - self.path_begin) as usize
     }
 
     pub fn get_xweight(&self) -> i32 {
