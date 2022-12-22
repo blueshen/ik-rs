@@ -17,13 +17,12 @@ pub static GLOBAL_DICT: Lazy<Mutex<Dictionary>> = Lazy::new(|| {
     Mutex::new(dict)
 });
 
-type Dict = Option<Trie>;
 /// Dictionary Manager
 pub struct Dictionary {
-    main_dict: Dict,
-    stop_word_dict: Dict,
-    quantifier_dict: Dict,
-    cfg: Option<Rc<dyn Configuration>>,
+    main_dict: Trie,
+    stop_word_dict: Trie,
+    quantifier_dict: Trie,
+    cfg: Rc<dyn Configuration>,
 }
 
 unsafe impl Sync for Dictionary {}
@@ -32,10 +31,10 @@ unsafe impl Send for Dictionary {}
 impl Dictionary {
     pub fn new() -> Self {
         Dictionary {
-            main_dict: Some(Trie::new()),
-            stop_word_dict: Some(Trie::new()),
-            quantifier_dict: Some(Trie::new()),
-            cfg: Some(Rc::new(DefaultConfig::new())),
+            main_dict: Trie::new(),
+            stop_word_dict: Trie::new(),
+            quantifier_dict: Trie::new(),
+            cfg: Rc::new(DefaultConfig::new()),
         }
     }
 
@@ -44,22 +43,19 @@ impl Dictionary {
     }
 
     pub fn add_words(&mut self, words: Vec<&str>) -> () {
-        let dict = self.main_dict.as_mut().unwrap();
         for word in words {
-            dict.insert(word);
+            self.main_dict.insert(word);
         }
     }
 
     pub fn disable_words(&mut self, words: Vec<&str>) -> () {
-        let dict = self.main_dict.as_mut().unwrap();
         for word in words {
-            dict.delete(word);
+            self.main_dict.delete(word);
         }
     }
 
     pub fn match_in_main_dict(&mut self, word: &str) -> Vec<Hit> {
-        let dict = self.main_dict.as_mut().unwrap();
-        dict.match_word(word)
+        self.main_dict.match_word(word)
     }
 
     pub fn match_in_main_dict_with_offset(
@@ -68,10 +64,7 @@ impl Dictionary {
         offset: usize,
         length: usize,
     ) -> Vec<Hit> {
-        self.main_dict
-            .as_mut()
-            .unwrap()
-            .match_word_with_offset(word, offset, length)
+        self.main_dict.match_word_with_offset(word, offset, length)
     }
 
     pub fn match_in_quantifier_dict(
@@ -81,16 +74,12 @@ impl Dictionary {
         length: usize,
     ) -> Vec<Hit> {
         self.quantifier_dict
-            .as_mut()
-            .unwrap()
             .match_word_with_offset(word, offset, length)
     }
 
     pub fn is_stop_word(&mut self, word: &str, offset: usize, length: usize) -> bool {
         let hits = self
             .stop_word_dict
-            .as_mut()
-            .unwrap()
             .match_word_with_offset(word, offset, length);
         for hit in hits.iter() {
             if hit.is_match() {
@@ -101,14 +90,14 @@ impl Dictionary {
     }
 
     fn load_main_dict(&mut self) -> bool {
-        let main_dict_path = self.cfg.as_ref().unwrap().as_ref().get_main_dictionary();
+        let main_dict_path = self.cfg.get_main_dictionary();
         let file = File::open(main_dict_path).expect("Open main_dict error!");
         let reader = BufReader::new(file);
         let mut total: usize = 0;
         for line in reader.lines() {
             match line {
                 Ok(word) => {
-                    self.main_dict.as_mut().unwrap().insert(&word.trim());
+                    self.main_dict.insert(&word.trim());
                     total += 1;
                 }
                 Err(e) => {
@@ -121,7 +110,7 @@ impl Dictionary {
     }
 
     fn load_ext_dict(&mut self) -> bool {
-        let ext_dict_files = self.cfg.as_ref().unwrap().get_ext_dictionaries();
+        let ext_dict_files = self.cfg.get_ext_dictionaries();
         let mut total = 0;
         for ext_dict_file in ext_dict_files {
             let file = File::open(ext_dict_file).expect("open error");
@@ -129,7 +118,7 @@ impl Dictionary {
             for line in reader.lines() {
                 match line {
                     Ok(word) => {
-                        self.main_dict.as_mut().unwrap().insert(&word.trim());
+                        self.main_dict.insert(&word.trim());
                         total += 1;
                     }
                     Err(e) => {
@@ -143,12 +132,7 @@ impl Dictionary {
     }
 
     fn load_stop_word_dict(&mut self) -> bool {
-        let ext_stop_word_dict_files = self
-            .cfg
-            .as_ref()
-            .unwrap()
-            .as_ref()
-            .get_ext_stop_word_dictionaries();
+        let ext_stop_word_dict_files = self.cfg.get_ext_stop_word_dictionaries();
         let mut total = 0usize;
         for stop_file in ext_stop_word_dict_files {
             println!("{}", stop_file);
@@ -157,7 +141,7 @@ impl Dictionary {
             for line in reader.lines() {
                 match line {
                     Ok(word) => {
-                        self.stop_word_dict.as_mut().unwrap().insert(&word.trim());
+                        self.stop_word_dict.insert(&word.trim());
                         total += 1;
                     }
                     Err(e) => {
@@ -171,19 +155,14 @@ impl Dictionary {
     }
 
     fn load_quantifier_dict(&mut self) -> bool {
-        let file_path = self
-            .cfg
-            .as_ref()
-            .unwrap()
-            .as_ref()
-            .get_quantifier_dictionary();
+        let file_path = self.cfg.get_quantifier_dictionary();
         let file = File::open(&file_path[..]).expect("open error");
         let reader = BufReader::new(file);
         let mut total = 0usize;
         for line in reader.lines() {
             match line {
                 Ok(word) => {
-                    self.quantifier_dict.as_mut().unwrap().insert(&word.trim());
+                    self.quantifier_dict.insert(&word.trim());
                     total += 1;
                 }
                 Err(e) => {

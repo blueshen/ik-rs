@@ -51,9 +51,7 @@ impl IKSegmenter {
         let mut final_results = Vec::new();
         // remove stop word
         let mut result = results.pop_front();
-        let mut result_value;
-        while result.is_some() {
-            result_value = result.as_mut().unwrap();
+        while let Some(ref mut result_value) = result {
             if mode == TokenMode::SEARCH {
                 self.compound(&mut results, result_value);
             }
@@ -85,41 +83,45 @@ impl IKSegmenter {
                 index += 1;
                 continue;
             }
-            let mut path = path_map.get_mut(&index);
-            if path.is_some() {
-                let mut l = path.as_mut().unwrap().poll_first();
-                while l.is_some() {
-                    let l_value = l.as_ref().unwrap();
+            let path = path_map.get_mut(&index);
+            if let Some(p) = path {
+                let mut l = p.poll_first();
+                while let Some(ref l_value) = l {
                     results.push_back(l_value.clone());
                     index = l_value.get_begin() + l_value.get_length();
-                    l = path.as_mut().unwrap().poll_first();
-                    if l.is_some() {
-                        let new_l_value = l.as_ref().unwrap();
+                    l = p.poll_first();
+                    if let Some(ref new_l_value) = l {
                         while index < new_l_value.get_begin() {
                             let curr_char = input.chars().nth(index).unwrap();
                             let cur_char_type = char_type_of(curr_char);
-                            if CharType::CHINESE == cur_char_type {
-                                let single_char_lexeme =
-                                    Lexeme::new(0, index, 1, LexemeType::CNCHAR);
-                                results.push_back(single_char_lexeme);
-                            } else if CharType::OtherCjk == cur_char_type {
-                                let single_char_lexeme =
-                                    Lexeme::new(0, index, 1, LexemeType::OtherCJK);
-                                results.push_back(single_char_lexeme);
+                            match cur_char_type {
+                                CharType::CHINESE => {
+                                    let single_char_lexeme =
+                                        Lexeme::new(0, index, 1, LexemeType::CNCHAR);
+                                    results.push_back(single_char_lexeme);
+                                }
+                                CharType::OtherCjk => {
+                                    let single_char_lexeme =
+                                        Lexeme::new(0, index, 1, LexemeType::OtherCJK);
+                                    results.push_back(single_char_lexeme);
+                                }
+                                _ => {}
                             }
                             index += 1;
                         }
                     }
                 }
             } else {
-                let curr_char = input.chars().nth(index).unwrap();
-                let cur_char_type = char_type_of(curr_char);
-                if CharType::CHINESE == cur_char_type {
-                    let single_char_lexeme = Lexeme::new(0, index, 1, LexemeType::CNCHAR);
-                    results.push_back(single_char_lexeme);
-                } else if CharType::OtherCjk == cur_char_type {
-                    let single_char_lexeme = Lexeme::new(0, index, 1, LexemeType::OtherCJK);
-                    results.push_back(single_char_lexeme);
+                match cur_char_type {
+                    CharType::CHINESE => {
+                        let single_char_lexeme = Lexeme::new(0, index, 1, LexemeType::CNCHAR);
+                        results.push_back(single_char_lexeme);
+                    }
+                    CharType::OtherCjk => {
+                        let single_char_lexeme = Lexeme::new(0, index, 1, LexemeType::OtherCJK);
+                        results.push_back(single_char_lexeme);
+                    }
+                    _ => {}
                 }
                 index += 1;
             }
@@ -143,7 +145,7 @@ impl IKSegmenter {
             }
 
             if LexemeType::CNUM == result.lexeme_type && !results.is_empty() {
-                let next_lexeme = results.front(); // p peekFirst();
+                let next_lexeme = results.front();
                 let mut append_ok = false;
                 if LexemeType::COUNT == next_lexeme.unwrap().lexeme_type {
                     append_ok = result.append(next_lexeme.unwrap(), LexemeType::CQUAN);

@@ -56,12 +56,11 @@ impl TrieNode {
 
     pub fn exist(&self, string_val: &str) -> bool {
         let mut current_node = self;
-        let char_list: Vec<char> = string_val.chars().collect();
-        for counter in 0..char_list.len() {
-            if !current_node.child_nodes.contains_key(&char_list[counter]) {
+        for (_, curr_char) in string_val.chars().enumerate() {
+            if !current_node.child_nodes.contains_key(&curr_char) {
                 return false;
             }
-            current_node = current_node.child_nodes.get(&char_list[counter]).unwrap();
+            current_node = current_node.child_nodes.get(&curr_char).unwrap();
         }
         return current_node.final_state;
     }
@@ -100,7 +99,8 @@ impl TrieNode {
         if offset + length <= char_list.len() {
             let mut end = offset;
             for counter in offset..offset + length {
-                if !current_node.child_nodes.contains_key(&char_list[counter]) {
+                let curr_char = char_list[counter];
+                if !current_node.child_nodes.contains_key(&curr_char) {
                     break;
                 }
                 if current_node.final_state {
@@ -113,7 +113,7 @@ impl TrieNode {
                     }
                     hits.push(hit);
                 }
-                current_node = current_node.child_nodes.get(&char_list[counter]).unwrap();
+                current_node = current_node.child_nodes.get(&curr_char).unwrap();
                 end = counter;
             }
             if current_node.value.is_some() {

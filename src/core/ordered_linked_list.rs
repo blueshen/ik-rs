@@ -1,3 +1,4 @@
+// migrate from https://doc.rust-lang.org/src/alloc/collections/linked_list.rs.html
 use std::cmp::PartialOrd;
 use std::error::Error;
 use std::fmt;
@@ -212,7 +213,6 @@ impl<T: PartialOrd> OrderedLinkedList<T> {
             for _ in 0..self.length {
                 match cur.take() {
                     None => {
-                        // before_node = self.head;
                         break;
                     }
                     Some(current) => {
@@ -480,8 +480,6 @@ impl<T: PartialOrd> Drop for OrderedLinkedList<T> {
             drop(node);
             mem::forget(guard);
         }
-
-        // println!("LinkedList dropped!")
     }
 }
 
@@ -494,8 +492,6 @@ impl<T: PartialOrd> Drop for IntoIter<T> {
         // only need to ensure all our elements are read;
         // buffer will clean itself up afterwards.
         for _ in &mut *self {}
-
-        println!("IntoIter has been dropped!")
     }
 }
 
