@@ -23,6 +23,9 @@ pub struct IKSegmenter {
     arbitrator: IKArbitrator,
 }
 
+unsafe impl Send for IKSegmenter {}
+unsafe impl Sync for IKSegmenter {}
+
 impl IKSegmenter {
     pub fn new() -> Self {
         let ik = IKSegmenter {
