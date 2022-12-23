@@ -1,4 +1,6 @@
 # ik-rs
+## 0.2.1
+more stable && performance++
 
 ## 0.2.0
 Separate tantivy-ik from the this project
