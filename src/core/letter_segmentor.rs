@@ -123,7 +123,7 @@ impl LetterSegmenter {
                 self.reset_english_state();
             }
         }
-        // }
+
         if self.english_end == (char_count - 1) as i32 {
             let new_lexeme = Lexeme::new(
                 0,

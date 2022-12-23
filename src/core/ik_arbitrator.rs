@@ -64,14 +64,14 @@ impl IKArbitrator {
             path_options.insert(option.clone());
         }
         // pick first one
-        let mut a = None;
+        let mut best = None;
         if !path_options.is_empty() {
             for o in path_options.iter() {
-                a = Some(o.clone());
+                best = Some(o.clone());
                 break;
             }
         }
-        return a;
+        return best;
     }
 
     pub fn forward_path<'a>(

@@ -19,8 +19,6 @@ impl Segmenter for CJKSegmenter {
         origin_lexemes: &mut OrderedLinkedList<Lexeme>,
     ) {
         let char_count = utf8_len(input);
-        // for (cursor, curr_char) in input.chars().enumerate() {
-        // let curr_char_type = char_type_of(curr_char);
         if CharType::USELESS != curr_char_type {
             let hit_options = GLOBAL_DICT.lock().unwrap().match_in_main_dict_with_offset(
                 input,

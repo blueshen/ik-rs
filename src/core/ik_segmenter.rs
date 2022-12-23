@@ -191,12 +191,13 @@ mod test {
 
     fn _get_input_texts() -> Vec<&'static str> {
         let texts = vec![
-            "张三说的确实在理",
-            "中华人民共和国",
-            "zhiyi.shen@gmail.com",
-            "我感觉很happy,并且不悲伤!",
-            "结婚的和尚未结婚的",
-            "中国有960万平方公里的国土",
+            // "张三说的确实在理",
+            // "中华人民共和国",
+            // "zhiyi.shen@gmail.com",
+            // "我感觉很happy,并且不悲伤!",
+            // "结婚的和尚未结婚的",
+            // "中国有960万平方公里的国土",
+            "我的年纪是十八",
         ];
         texts
     }

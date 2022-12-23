@@ -52,6 +52,7 @@ impl CnQuantifierSegmenter {
         origin_lexemes: &mut OrderedLinkedList<Lexeme>,
     ) {
         let curr_char = input.chars().nth(cursor).unwrap();
+        let char_count = utf8_len(input);
         if self.initial_state() {
             if CharType::CHINESE == curr_char_type && self.chn_number_chars.contains(&curr_char) {
                 self.start = cursor as i32;
@@ -70,17 +71,16 @@ impl CnQuantifierSegmenter {
                 origin_lexemes.insert(new_lexeme);
                 self.reset_state();
             }
-
-            if self.start != -1 && self.end != -1 {
-                let new_lexeme = Lexeme::new(
-                    0,
-                    self.start as usize,
-                    (self.end - self.start + 1) as usize,
-                    LexemeType::CNUM,
-                );
-                origin_lexemes.insert(new_lexeme);
-                self.reset_state();
-            }
+        }
+        if self.end == (char_count - 1) as i32 {
+            let new_lexeme = Lexeme::new(
+                0,
+                self.start as usize,
+                (self.end - self.start + 1) as usize,
+                LexemeType::CNUM,
+            );
+            origin_lexemes.insert(new_lexeme);
+            self.reset_state();
         }
     }
 
