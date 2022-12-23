@@ -1,5 +1,5 @@
 # ik-rs
-## 0.2.1
+## 0.3.0
 more stable && performance++
 
 ## 0.2.0
