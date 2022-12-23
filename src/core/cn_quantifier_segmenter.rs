@@ -1,7 +1,7 @@
-use crate::core::char_util::char_type_of;
 use crate::core::char_util::utf8_len;
 use crate::core::char_util::CharType;
 use crate::core::lexeme::{Lexeme, LexemeType};
+use crate::core::ordered_linked_list::OrderedLinkedList;
 use crate::core::segmentor::Segmenter;
 use crate::dict::dictionary::GLOBAL_DICT;
 use std::collections::HashSet;
@@ -16,13 +16,15 @@ pub struct CnQuantifierSegmenter {
 }
 
 impl Segmenter for CnQuantifierSegmenter {
-    fn analyze(&mut self, input: &str) -> Vec<Lexeme> {
-        let mut new_lexemes: Vec<Lexeme> = Vec::new();
-        let mut cnum_lexemes = self.process_cnumber(input);
-        new_lexemes.append(&mut cnum_lexemes);
-        let mut cquan_lexemes = self.process_count(input);
-        new_lexemes.append(&mut cquan_lexemes);
-        new_lexemes
+    fn analyze(
+        &mut self,
+        input: &str,
+        cursor: usize,
+        curr_char_type: CharType,
+        origin_lexemes: &mut OrderedLinkedList<Lexeme>,
+    ) {
+        self.process_cnumber(input, cursor, curr_char_type, origin_lexemes);
+        self.process_count(input, cursor, curr_char_type, origin_lexemes);
     }
     fn name(&self) -> &str {
         return SEGMENTER_NAME;
@@ -42,30 +44,31 @@ impl CnQuantifierSegmenter {
         }
     }
 
-    fn process_cnumber(&mut self, input: &str) -> Vec<Lexeme> {
-        let mut new_lexemes = Vec::new();
-        for (cursor, curr_char) in input.chars().enumerate() {
-            let curr_char_type = char_type_of(curr_char);
-            if self.initial_state() {
-                if CharType::CHINESE == curr_char_type && self.chn_number_chars.contains(&curr_char)
-                {
-                    self.start = cursor as i32;
-                    self.end = cursor as i32;
-                }
+    fn process_cnumber(
+        &mut self,
+        input: &str,
+        cursor: usize,
+        curr_char_type: CharType,
+        origin_lexemes: &mut OrderedLinkedList<Lexeme>,
+    ) {
+        let curr_char = input.chars().nth(cursor).unwrap();
+        if self.initial_state() {
+            if CharType::CHINESE == curr_char_type && self.chn_number_chars.contains(&curr_char) {
+                self.start = cursor as i32;
+                self.end = cursor as i32;
+            }
+        } else {
+            if CharType::CHINESE == curr_char_type && self.chn_number_chars.contains(&curr_char) {
+                self.end = cursor as i32;
             } else {
-                if CharType::CHINESE == curr_char_type && self.chn_number_chars.contains(&curr_char)
-                {
-                    self.end = cursor as i32;
-                } else {
-                    let new_lexeme = Lexeme::new(
-                        0,
-                        self.start as usize,
-                        (self.end - self.start + 1) as usize,
-                        LexemeType::CNUM,
-                    );
-                    new_lexemes.push(new_lexeme);
-                    self.reset_state();
-                }
+                let new_lexeme = Lexeme::new(
+                    0,
+                    self.start as usize,
+                    (self.end - self.start + 1) as usize,
+                    LexemeType::CNUM,
+                );
+                origin_lexemes.insert(new_lexeme);
+                self.reset_state();
             }
 
             if self.start != -1 && self.end != -1 {
@@ -75,49 +78,61 @@ impl CnQuantifierSegmenter {
                     (self.end - self.start + 1) as usize,
                     LexemeType::CNUM,
                 );
-                new_lexemes.push(new_lexeme);
+                origin_lexemes.insert(new_lexeme);
                 self.reset_state();
             }
         }
-        new_lexemes
     }
 
-    fn process_count(&mut self, input: &str) -> Vec<Lexeme> {
-        let mut new_lexemes = Vec::new();
-        if self.need_count_scan() {
+    fn process_count(
+        &mut self,
+        input: &str,
+        cursor: usize,
+        curr_char_type: CharType,
+        origin_lexemes: &mut OrderedLinkedList<Lexeme>,
+    ) {
+        if self.need_count_scan(cursor, origin_lexemes) {
             let char_count = utf8_len(input);
-            for (cursor, curr_char) in input.chars().enumerate() {
-                let curr_char_type = char_type_of(curr_char);
-                if CharType::CHINESE == curr_char_type {
-                    let hit_options = GLOBAL_DICT.lock().unwrap().match_in_quantifier_dict(
-                        input,
-                        cursor,
-                        char_count - cursor,
-                    );
-                    for hit in hit_options.iter() {
-                        if hit.is_match() {
-                            let new_lexeme = Lexeme::new(
-                                0,
-                                hit.begin,
-                                hit.end - hit.begin + 1,
-                                LexemeType::COUNT,
-                            );
-                            new_lexemes.push(new_lexeme);
-                        }
+            if CharType::CHINESE == curr_char_type {
+                let hit_options = GLOBAL_DICT.lock().unwrap().match_in_quantifier_dict(
+                    input,
+                    cursor,
+                    char_count - cursor,
+                );
+                for hit in hit_options.iter() {
+                    if hit.is_match() {
+                        let new_lexeme =
+                            Lexeme::new(0, hit.begin, hit.end - hit.begin + 1, LexemeType::COUNT);
+                        origin_lexemes.insert(new_lexeme);
                     }
                 }
             }
         }
-        new_lexemes
     }
 
-    fn need_count_scan(&self) -> bool {
-        if self.initial_state() {
+    fn need_count_scan(
+        &self,
+        cursor: usize,
+        origin_lexemes: &mut OrderedLinkedList<Lexeme>,
+    ) -> bool {
+        if self.start != -1 && self.end != -1 {
+            return true;
+        }
+        if origin_lexemes.is_empty() {
+            return false;
+        } else {
+            let last = origin_lexemes.peek_back();
+            if let Some(lexeme) = last {
+                if lexeme.lexeme_type == LexemeType::ARABIC
+                    || lexeme.lexeme_type == LexemeType::CNUM
+                {
+                    if lexeme.get_begin() + lexeme.get_length() == cursor {
+                        return true;
+                    }
+                }
+            }
             return false;
         }
-        // TODO(blueshen) check if previous lexeme is CNUM or ARABIC
-        // maybe should merge letter_segmentor + cn_quantifier segmentor
-        return true;
     }
 
     fn initial_state(&self) -> bool {

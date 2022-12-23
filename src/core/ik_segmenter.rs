@@ -39,13 +39,14 @@ impl IKSegmenter {
     pub fn tokenize(&mut self, text: &str, mode: TokenMode) -> Vec<Lexeme> {
         let regular_str = regularize_str(text);
         let input = regular_str.as_str();
-        let mut origin_lexemes = OrderedLinkedList::new();
-        for segmenter in self.segmenters.iter_mut() {
-            let lexemes = segmenter.analyze(input);
-            for lexeme in lexemes {
-                origin_lexemes.insert(lexeme).expect("error!");
+        let mut origin_lexemes = OrderedLinkedList::<Lexeme>::new();
+        for (cursor, curr_char) in input.chars().enumerate() {
+            let curr_char_type = char_type_of(curr_char);
+            for segmenter in self.segmenters.iter_mut() {
+                segmenter.analyze(input, cursor, curr_char_type, &mut origin_lexemes);
             }
         }
+
         let mut path_map = self.arbitrator.process(&mut origin_lexemes, mode);
         let mut results = self.output_to_result(&mut path_map, input);
         let mut final_results = Vec::new();
@@ -195,6 +196,7 @@ mod test {
             "zhiyi.shen@gmail.com",
             "我感觉很happy,并且不悲伤!",
             "结婚的和尚未结婚的",
+            "中国有960万平方公里的国土",
         ];
         texts
     }

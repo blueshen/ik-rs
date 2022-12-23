@@ -1,6 +1,6 @@
 use unicode_blocks;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Copy, Clone)]
 pub enum CharType {
     USELESS,
     ARABIC,

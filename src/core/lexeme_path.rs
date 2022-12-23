@@ -23,17 +23,13 @@ impl LexemePath {
 
     pub fn add_cross_lexeme(&mut self, lexeme: &Lexeme) -> bool {
         return if self.lexeme_list.is_empty() {
-            self.lexeme_list
-                .insert(lexeme.clone())
-                .expect("add cross lexeme error!");
+            self.lexeme_list.insert(lexeme.clone());
             self.path_begin = lexeme.get_begin() as i32;
             self.path_end = (lexeme.get_begin() + lexeme.get_length()) as i32;
             self.payload_length += lexeme.get_length();
             true
         } else if self.check_cross(&lexeme) {
-            self.lexeme_list
-                .insert(lexeme.clone())
-                .expect("add cross lexeme error!");
+            self.lexeme_list.insert(lexeme.clone());
             if (lexeme.get_begin() + lexeme.get_length()) as i32 > self.path_end {
                 self.path_end = (lexeme.get_begin() + lexeme.get_length()) as i32;
             }
@@ -46,9 +42,7 @@ impl LexemePath {
 
     pub fn add_not_cross_lexeme(&mut self, lexeme: &Lexeme) -> bool {
         return if self.lexeme_list.is_empty() {
-            self.lexeme_list
-                .insert(lexeme.clone())
-                .expect("add not cross lexeme error");
+            self.lexeme_list.insert(lexeme.clone());
             self.path_begin = lexeme.get_begin() as i32;
             self.path_end = (lexeme.get_begin() + lexeme.get_length()) as i32;
             self.payload_length += lexeme.get_length();
@@ -56,9 +50,7 @@ impl LexemePath {
         } else if self.check_cross(lexeme) {
             false
         } else {
-            self.lexeme_list
-                .insert(lexeme.clone())
-                .expect("add no cross lexeme error");
+            self.lexeme_list.insert(lexeme.clone());
             self.payload_length += lexeme.get_length();
             let head = self.lexeme_list.peek_front(); //  peekFirst();
             self.path_begin = head.unwrap().get_begin() as i32;
@@ -156,10 +148,7 @@ impl Clone for LexemePath {
         the_copy.path_end = self.path_end;
         the_copy.payload_length = self.payload_length;
         for lexeme in self.lexeme_list.iter() {
-            the_copy
-                .lexeme_list
-                .insert(lexeme.clone())
-                .expect("clone insert error");
+            the_copy.lexeme_list.insert(lexeme.clone());
         }
         return the_copy;
     }

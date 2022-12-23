@@ -94,9 +94,7 @@ impl<T: PartialOrd> OrderedLinkedList<T> {
         self.length += 1;
     }
 
-    /// Adds the given node to the back of the list.
     fn push_back(&mut self, val: T) {
-        // Use box to help generate raw ptr
         let mut node = Box::new(Node::new(val));
         node.next = None;
         node.prev = self.tail;
@@ -104,7 +102,6 @@ impl<T: PartialOrd> OrderedLinkedList<T> {
 
         match self.tail {
             None => self.head = node,
-            // Not creating new mutable (unique!) references overlapping `element`.
             Some(tail) => unsafe { (*tail.as_ptr()).next = node },
         }
 
@@ -112,19 +109,13 @@ impl<T: PartialOrd> OrderedLinkedList<T> {
         self.length += 1;
     }
 
-    /// Removes the first element and returns it, or `None` if the list is
-    /// empty.
-    ///
-    /// This operation should compute in *O*(1) time.
     pub fn pop_front(&mut self) -> Option<T> {
         self.head.map(|node| {
             self.length -= 1;
 
             unsafe {
                 let node = Box::from_raw(node.as_ptr());
-
                 self.head = node.next;
-
                 match self.head {
                     None => self.tail = None,
                     Some(head) => (*head.as_ptr()).prev = None,
@@ -134,19 +125,13 @@ impl<T: PartialOrd> OrderedLinkedList<T> {
         })
     }
 
-    /// Removes the last element from a list and returns it, or `None` if
-    /// it is empty.
-    ///
-    /// This operation should compute in *O*(1) time.
     pub fn pop_back(&mut self) -> Option<T> {
         self.tail.map(|node| {
             self.length -= 1;
 
             unsafe {
                 let node = Box::from_raw(node.as_ptr());
-
                 self.tail = node.prev;
-
                 match self.tail {
                     None => self.head = None,
                     Some(tail) => (*tail.as_ptr()).next = None,
@@ -159,26 +144,14 @@ impl<T: PartialOrd> OrderedLinkedList<T> {
         unsafe { self.head.as_ref().map(|node| &node.as_ref().val) }
     }
 
-    /// Provides a reference to the back element, or `None` if the list is
-    /// empty.
-    ///
-    /// This operation should compute in *O*(1) time.
     pub fn peek_back(&self) -> Option<&T> {
         unsafe { self.tail.as_ref().map(|node| &node.as_ref().val) }
     }
 
-    /// Provides a mutable reference to the front element, or `None` if the list
-    /// is empty.
-    ///
-    /// This operation should compute in *O*(1) time.
     pub fn peek_front_mut(&mut self) -> Option<&mut T> {
         unsafe { self.head.as_mut().map(|node| &mut node.as_mut().val) }
     }
 
-    /// Provides a mutable reference to the back element, or `None` if the list
-    /// is empty.
-    ///
-    /// This operation should compute in *O*(1) time.
     pub fn peek_back_mut(&mut self) -> Option<&mut T> {
         unsafe { self.tail.as_mut().map(|node| &mut node.as_mut().val) }
     }
@@ -191,20 +164,20 @@ impl<T: PartialOrd> OrderedLinkedList<T> {
         self.tail.as_ref()
     }
 
-    pub fn insert(&mut self, data: T) -> Result<(), Box<dyn Error>> {
+    pub fn insert(&mut self, data: T) -> bool {
         if self.length == 0 {
             self.push_front(data);
-            return Ok(());
+            return true;
         }
         unsafe {
             if data < self.head.unwrap().as_ref().val {
                 self.push_front(data);
-                return Ok(());
+                return true;
             }
 
             if data > self.tail.unwrap().as_ref().val {
                 self.push_back(data);
-                return Ok(());
+                return true;
             }
 
             // Tail to Head
@@ -221,7 +194,7 @@ impl<T: PartialOrd> OrderedLinkedList<T> {
                         }
                         if current.as_ref().val == data {
                             // already exist, do nothing
-                            return Ok(());
+                            return true;
                         }
                         if current.as_ref().val < data {
                             before_node = Some(current);
@@ -243,7 +216,7 @@ impl<T: PartialOrd> OrderedLinkedList<T> {
                 self.length += 1;
             }
         }
-        Ok(())
+        true
     }
 
     pub fn get(&self, idx: usize) -> Result<Option<&T>, Box<dyn Error>> {
@@ -489,8 +462,6 @@ pub struct IntoIter<T: PartialOrd> {
 
 impl<T: PartialOrd> Drop for IntoIter<T> {
     fn drop(&mut self) {
-        // only need to ensure all our elements are read;
-        // buffer will clean itself up afterwards.
         for _ in &mut *self {}
     }
 }
@@ -562,7 +533,6 @@ impl<'a, T: PartialOrd> DoubleEndedIterator for Iter<'a, T> {
                 self.len -= 1;
 
                 unsafe {
-                    // Need an unbound lifetime to get 'a
                     let node = &*node.as_ptr();
                     self.tail = node.prev;
                     &node.val
@@ -687,9 +657,7 @@ mod test {
         let mut list = _new_list_zst();
 
         assert_eq!(list.length(), 3);
-
         list.clear();
-
         assert_eq!(list.length(), 0);
     }
 
@@ -709,18 +677,13 @@ mod test {
             "transform list2 into len vec, list2_to_len: {:?}",
             list2_to_len
         );
-
-        // Compiling err:
-        // list2.traverse()
     }
 
     #[test]
     fn test_insert() {
         let mut list = OrderedLinkedList::new();
-        list.insert(Lexeme::new(0, 1, 1, LexemeType::CNUM))
-            .expect("error!");
-        list.insert(Lexeme::new(0, 0, 1, LexemeType::COUNT))
-            .expect("error!");
+        list.insert(Lexeme::new(0, 1, 1, LexemeType::CNUM));
+        list.insert(Lexeme::new(0, 0, 1, LexemeType::COUNT));
         list.traverse();
     }
 
@@ -729,33 +692,27 @@ mod test {
 
     fn _new_list_i32() -> OrderedLinkedList<i32> {
         let mut list = OrderedLinkedList::new();
-
         list.push_front(456);
         list.push_front(123);
         list.push_back(789);
         list.push_front(-1);
         list.push_back(i32::MAX);
-
         list
     }
 
     fn _new_list_string() -> OrderedLinkedList<String> {
         let mut list = OrderedLinkedList::new();
-
         list.push_front(String::from("def"));
         list.push_front(String::from("abc"));
         list.push_back(String::from("hij"));
-
         list
     }
 
     fn _new_list_zst() -> OrderedLinkedList<ZeroSizeType> {
         let mut list = OrderedLinkedList::new();
-
         list.push_front(ZeroSizeType {});
         list.push_front(ZeroSizeType {});
         list.push_back(ZeroSizeType {});
-
         list
     }
 }
