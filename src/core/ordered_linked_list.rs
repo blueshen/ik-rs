@@ -682,8 +682,8 @@ mod test {
     #[test]
     fn test_insert() {
         let mut list = OrderedLinkedList::new();
-        list.insert(Lexeme::new(0, 1, 1, LexemeType::CNUM));
-        list.insert(Lexeme::new(0, 0, 1, LexemeType::COUNT));
+        list.insert(Lexeme::new(1..2, LexemeType::CNUM));
+        list.insert(Lexeme::new(0..1, LexemeType::COUNT));
         list.traverse();
     }
 

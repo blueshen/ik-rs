@@ -27,7 +27,7 @@ impl Segmenter for CJKSegmenter {
             );
             for hit in hit_options.iter() {
                 if hit.is_match() {
-                    let new_lexeme = Lexeme::new(0, hit.begin, hit.length(), LexemeType::CNWORD);
+                    let new_lexeme = Lexeme::new(hit.pos.clone(), LexemeType::CNWORD);
                     origin_lexemes.insert(new_lexeme);
                 }
             }

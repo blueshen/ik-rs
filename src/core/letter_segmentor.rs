@@ -73,9 +73,7 @@ impl LetterSegmenter {
                 self.end = cursor as i32;
             } else {
                 let new_lexeme = Lexeme::new(
-                    0,
-                    self.start as usize,
-                    (self.end - self.start + 1) as usize,
+                    (self.start as usize)..(self.end + 1) as usize,
                     LexemeType::LETTER,
                 );
                 origin_lexemes.insert(new_lexeme);
@@ -85,9 +83,7 @@ impl LetterSegmenter {
 
         if self.end == (char_count - 1) as i32 {
             let new_lexeme = Lexeme::new(
-                0,
-                self.start as usize,
-                (self.end - self.start + 1) as usize,
+                (self.start as usize)..(self.end + 1) as usize,
                 LexemeType::LETTER,
             );
             origin_lexemes.insert(new_lexeme);
@@ -114,9 +110,7 @@ impl LetterSegmenter {
                 self.english_end = cursor as i32;
             } else {
                 let new_lexeme = Lexeme::new(
-                    0,
-                    self.english_start as usize,
-                    (self.english_end - self.english_start + 1) as usize,
+                    (self.english_start as usize)..(self.english_end + 1) as usize,
                     LexemeType::ENGLISH,
                 );
                 origin_lexemes.insert(new_lexeme);
@@ -126,9 +120,7 @@ impl LetterSegmenter {
 
         if self.english_end == (char_count - 1) as i32 {
             let new_lexeme = Lexeme::new(
-                0,
-                self.english_start as usize,
-                (self.english_end - self.english_start + 1) as usize,
+                (self.english_start as usize)..(self.english_end + 1) as usize,
                 LexemeType::ENGLISH,
             );
             origin_lexemes.insert(new_lexeme);
@@ -158,9 +150,7 @@ impl LetterSegmenter {
                 // do nothing
             } else {
                 let new_lexeme = Lexeme::new(
-                    0,
-                    self.arabic_start as usize,
-                    (self.arabic_end - self.arabic_start + 1) as usize,
+                    (self.arabic_start as usize)..(self.arabic_end + 1) as usize,
                     LexemeType::ARABIC,
                 );
                 origin_lexemes.insert(new_lexeme);
@@ -169,9 +159,7 @@ impl LetterSegmenter {
         }
         if self.arabic_end == (char_count - 1) as i32 {
             let new_lexeme = Lexeme::new(
-                0,
-                self.arabic_start as usize,
-                (self.arabic_end - self.arabic_start + 1) as usize,
+                (self.arabic_start as usize)..(self.arabic_end + 1) as usize,
                 LexemeType::ARABIC,
             );
             origin_lexemes.insert(new_lexeme);

@@ -101,12 +101,12 @@ impl IKSegmenter {
                             match cur_char_type {
                                 CharType::CHINESE => {
                                     let single_char_lexeme =
-                                        Lexeme::new(0, index, 1, LexemeType::CNCHAR);
+                                        Lexeme::new(index..index + 1, LexemeType::CNCHAR);
                                     results.push_back(single_char_lexeme);
                                 }
                                 CharType::OtherCjk => {
                                     let single_char_lexeme =
-                                        Lexeme::new(0, index, 1, LexemeType::OtherCJK);
+                                        Lexeme::new(index..index + 1, LexemeType::OtherCJK);
                                     results.push_back(single_char_lexeme);
                                 }
                                 _ => {}
@@ -118,11 +118,12 @@ impl IKSegmenter {
             } else {
                 match cur_char_type {
                     CharType::CHINESE => {
-                        let single_char_lexeme = Lexeme::new(0, index, 1, LexemeType::CNCHAR);
+                        let single_char_lexeme = Lexeme::new(index..index + 1, LexemeType::CNCHAR);
                         results.push_back(single_char_lexeme);
                     }
                     CharType::OtherCjk => {
-                        let single_char_lexeme = Lexeme::new(0, index, 1, LexemeType::OtherCJK);
+                        let single_char_lexeme =
+                            Lexeme::new(index..index + 1, LexemeType::OtherCJK);
                         results.push_back(single_char_lexeme);
                     }
                     _ => {}
@@ -194,12 +195,12 @@ mod test {
 
     fn _get_input_texts() -> Vec<&'static str> {
         let texts = vec![
-            // "张三说的确实在理",
-            // "中华人民共和国",
-            // "zhiyi.shen@gmail.com",
-            // "我感觉很happy,并且不悲伤!",
-            // "结婚的和尚未结婚的",
-            // "中国有960万平方公里的国土",
+            "张三说的确实在理",
+            "中华人民共和国",
+            "zhiyi.shen@gmail.com",
+            "我感觉很happy,并且不悲伤!",
+            "结婚的和尚未结婚的",
+            "中国有960万平方公里的国土",
             "我的年纪是十八",
         ];
         texts

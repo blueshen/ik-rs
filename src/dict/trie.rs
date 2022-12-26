@@ -105,8 +105,7 @@ impl TrieNode {
                 }
                 if current_node.final_state {
                     let mut hit = Hit::new();
-                    hit.begin = offset;
-                    hit.end = end;
+                    hit.pos = offset..end + 1;
                     hit.set_match();
                     if current_node.has_childs() {
                         hit.set_prefix();
@@ -118,8 +117,7 @@ impl TrieNode {
             }
             if current_node.value.is_some() {
                 let mut hit = Hit::new();
-                hit.begin = offset;
-                hit.end = end;
+                hit.pos = offset..end + 1;
                 if current_node.final_state {
                     hit.set_match();
                 }

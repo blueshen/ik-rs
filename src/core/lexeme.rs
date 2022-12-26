@@ -1,5 +1,6 @@
 use crate::core::char_util::utf8_slice;
 use std::cmp::Ordering;
+use std::ops::Range;
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum LexemeType {
@@ -17,10 +18,8 @@ pub enum LexemeType {
 
 #[derive(Debug)]
 pub struct Lexeme {
-    // TODO(blueshen) maybe use later, current default = 0
-    offset: usize,
-    begin: usize,
-    length: usize,
+    offset: usize, // maybe use later, current default = 0
+    pos: Range<usize>,
     lexeme_text: String,
     pub(crate) lexeme_type: LexemeType,
 }
@@ -29,8 +28,7 @@ impl Clone for Lexeme {
     fn clone(&self) -> Self {
         Self {
             offset: self.offset,
-            begin: self.begin,
-            length: self.length,
+            pos: self.pos.clone(),
             lexeme_text: self.lexeme_text.clone(),
             lexeme_type: self.lexeme_type.clone(),
         }
@@ -39,18 +37,18 @@ impl Clone for Lexeme {
 
 impl PartialEq for Lexeme {
     fn eq(&self, other: &Self) -> bool {
-        self.offset == other.offset && self.begin == other.begin && self.length == other.length
+        self.offset == other.offset && self.pos == other.pos
     }
 }
 
 impl PartialOrd for Lexeme {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        return if self.begin < other.begin {
+        return if self.get_begin() < other.get_begin() {
             Some(Ordering::Less)
-        } else if self.begin == other.begin {
-            if self.length > other.length {
+        } else if self.get_begin() == other.get_begin() {
+            if self.pos.len() > other.pos.len() {
                 Some(Ordering::Less)
-            } else if self.length == other.length {
+            } else if self.pos.len() == other.pos.len() {
                 Some(Ordering::Equal)
             } else {
                 Some(Ordering::Greater)
@@ -62,34 +60,29 @@ impl PartialOrd for Lexeme {
 }
 
 impl Lexeme {
-    pub fn new(offset: usize, begin: usize, length: usize, lexeme_type: LexemeType) -> Self {
+    pub fn new(pos: Range<usize>, lexeme_type: LexemeType) -> Self {
         Lexeme {
-            offset,
-            begin,
-            length,
+            offset: 0,
+            pos,
             lexeme_type,
             lexeme_text: String::from(""),
         }
     }
 
     pub fn get_begin(&self) -> usize {
-        self.begin
+        self.pos.start
     }
 
     pub fn get_begin_position(&self) -> usize {
-        self.offset + self.begin
+        self.offset + self.pos.start
     }
 
     pub fn get_end_position(&self) -> usize {
-        self.get_begin_position() + self.length
+        self.offset + self.pos.end
     }
 
     pub fn get_length(&self) -> usize {
-        self.length
-    }
-
-    pub fn set_length(&mut self, length: usize) {
-        self.length = length;
+        self.pos.len()
     }
 
     pub fn get_lexeme_text(&self) -> &str {
@@ -97,7 +90,7 @@ impl Lexeme {
     }
 
     pub fn parse_lexeme_text(&mut self, input: &str) {
-        let sub_text = utf8_slice(input, self.begin, self.begin + self.length);
+        let sub_text = utf8_slice(input, self.get_begin_position(), self.get_end_position());
         self.lexeme_text = sub_text.to_string();
     }
 
@@ -118,7 +111,7 @@ impl Lexeme {
 
     pub fn append(&mut self, l: &Lexeme, lexeme_type: LexemeType) -> bool {
         if self.get_end_position() == l.get_begin_position() {
-            self.length += l.get_length();
+            self.pos.end = l.pos.end;
             self.lexeme_type = lexeme_type;
             return true;
         }

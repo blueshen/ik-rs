@@ -63,9 +63,7 @@ impl CnQuantifierSegmenter {
                 self.end = cursor as i32;
             } else {
                 let new_lexeme = Lexeme::new(
-                    0,
-                    self.start as usize,
-                    (self.end - self.start + 1) as usize,
+                    (self.start as usize)..(self.end + 1) as usize,
                     LexemeType::CNUM,
                 );
                 origin_lexemes.insert(new_lexeme);
@@ -74,9 +72,7 @@ impl CnQuantifierSegmenter {
         }
         if self.end == (char_count - 1) as i32 {
             let new_lexeme = Lexeme::new(
-                0,
-                self.start as usize,
-                (self.end - self.start + 1) as usize,
+                (self.start as usize)..(self.end + 1) as usize,
                 LexemeType::CNUM,
             );
             origin_lexemes.insert(new_lexeme);
@@ -101,8 +97,7 @@ impl CnQuantifierSegmenter {
                 );
                 for hit in hit_options.iter() {
                     if hit.is_match() {
-                        let new_lexeme =
-                            Lexeme::new(0, hit.begin, hit.end - hit.begin + 1, LexemeType::COUNT);
+                        let new_lexeme = Lexeme::new(hit.pos.clone(), LexemeType::COUNT);
                         origin_lexemes.insert(new_lexeme);
                     }
                 }
