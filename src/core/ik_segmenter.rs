@@ -98,40 +98,36 @@ impl IKSegmenter {
                         while index < new_l_value.get_begin() {
                             let curr_char = input.chars().nth(index).unwrap();
                             let cur_char_type = char_type_of(curr_char);
-                            match cur_char_type {
-                                CharType::CHINESE => {
-                                    let single_char_lexeme =
-                                        Lexeme::new(index..index + 1, LexemeType::CNCHAR);
-                                    results.push_back(single_char_lexeme);
-                                }
-                                CharType::OtherCjk => {
-                                    let single_char_lexeme =
-                                        Lexeme::new(index..index + 1, LexemeType::OtherCJK);
-                                    results.push_back(single_char_lexeme);
-                                }
-                                _ => {}
-                            }
+                            self.add_single_lexeme(&mut results, cur_char_type, index);
                             index += 1;
                         }
                     }
                 }
             } else {
-                match cur_char_type {
-                    CharType::CHINESE => {
-                        let single_char_lexeme = Lexeme::new(index..index + 1, LexemeType::CNCHAR);
-                        results.push_back(single_char_lexeme);
-                    }
-                    CharType::OtherCjk => {
-                        let single_char_lexeme =
-                            Lexeme::new(index..index + 1, LexemeType::OtherCJK);
-                        results.push_back(single_char_lexeme);
-                    }
-                    _ => {}
-                }
+                self.add_single_lexeme(&mut results, cur_char_type, index);
                 index += 1;
             }
         }
         results
+    }
+
+    fn add_single_lexeme(
+        &self,
+        results: &mut LinkedList<Lexeme>,
+        cur_char_type: CharType,
+        index: usize,
+    ) {
+        match cur_char_type {
+            CharType::CHINESE => {
+                let single_char_lexeme = Lexeme::new(index..index + 1, LexemeType::CNCHAR);
+                results.push_back(single_char_lexeme);
+            }
+            CharType::OtherCjk => {
+                let single_char_lexeme = Lexeme::new(index..index + 1, LexemeType::OtherCJK);
+                results.push_back(single_char_lexeme);
+            }
+            _ => {}
+        }
     }
 
     fn compound(&mut self, results: &mut LinkedList<Lexeme>, result: &mut Lexeme) {
