@@ -77,9 +77,7 @@ impl<T: PartialOrd> OrderedLinkedList<T> {
         self.length == 0
     }
 
-    /// Adds the given node to the front of the list.
     fn push_front(&mut self, val: T) {
-        // Use box to help generate raw ptr
         let mut node = Box::new(Node::new(val));
         node.next = self.head;
         node.prev = None;
@@ -442,8 +440,6 @@ impl<T: PartialOrd> Drop for OrderedLinkedList<T> {
 
         impl<'a, T: PartialOrd> Drop for DropGuard<'a, T> {
             fn drop(&mut self) {
-                // Continue the same loop we do below. This only runs when a destructor has
-                // panicked. If another one panics this will abort.
                 while self.0.pop_front().is_some() {}
             }
         }

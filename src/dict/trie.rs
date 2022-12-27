@@ -42,10 +42,12 @@ impl TrieNode {
         self.child_nodes.len() > 0
     }
 
+    #[allow(dead_code)]
     pub fn is_final_state(&self) -> bool {
         self.final_state
     }
 
+    #[allow(dead_code)]
     pub fn check_value(self, c: char) -> bool {
         self.value == Some(c)
     }
@@ -148,16 +150,19 @@ impl Trie {
         current_node.insert(string_val)
     }
 
+    #[allow(dead_code)]
     pub fn delete(&mut self, string_val: &str) -> bool {
         let current_node = &mut self.root;
         current_node.delete(string_val)
     }
 
+    #[allow(dead_code)]
     pub fn exist(&mut self, string_val: &str) -> bool {
         let current_node = &mut self.root;
         current_node.exist(string_val)
     }
 
+    #[allow(dead_code)]
     pub fn match_word(&mut self, string_val: &str) -> Vec<Hit> {
         let root_node = &mut self.root;
         let len = string_val.chars().count();

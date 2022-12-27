@@ -1,5 +1,5 @@
 use unicode_blocks;
-
+#[allow(dead_code)]
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub enum CharType {
     USELESS,
@@ -76,10 +76,12 @@ pub fn utf8_slice(s: &str, begin: usize, end: usize) -> &str {
         .unwrap_or("")
 }
 
+#[allow(dead_code)]
 pub fn utf8_from(s: &str, begin: usize) -> &str {
     utf8_slice(s, begin, utf8_len(s))
 }
 
+#[allow(dead_code)]
 pub fn utf8_till(s: &str, end: usize) -> &str {
     utf8_slice(s, 0, end)
 }

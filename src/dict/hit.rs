@@ -27,16 +27,20 @@ impl Hit {
     pub fn set_prefix(&mut self) {
         self.hit_state = self.hit_state | PREFIX;
     }
+    #[allow(dead_code)]
     pub fn is_prefix(&self) -> bool {
         (self.hit_state & PREFIX) > 0
     }
 
+    #[allow(dead_code)]
     pub fn set_unmatch(&mut self) {
         self.hit_state = UNMATCH;
     }
+    #[allow(dead_code)]
     pub fn is_unmatch(&self) -> bool {
         self.hit_state == UNMATCH
     }
+    #[allow(dead_code)]
     pub fn length(&self) -> usize {
         self.pos.len()
     }

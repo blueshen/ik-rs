@@ -92,7 +92,7 @@ impl IKSegmenter {
                 let mut l = p.poll_first();
                 while let Some(ref l_value) = l {
                     results.push_back(l_value.clone());
-                    index = l_value.get_begin() + l_value.get_length();
+                    index = l_value.get_end_position();
                     l = p.poll_first();
                     if let Some(ref new_l_value) = l {
                         while index < new_l_value.get_begin() {
@@ -133,12 +133,14 @@ impl IKSegmenter {
     fn compound(&mut self, results: &mut LinkedList<Lexeme>, result: &mut Lexeme) {
         if !results.is_empty() {
             if LexemeType::ARABIC == result.lexeme_type {
-                let next_lexeme = results.front();
                 let mut append_ok = false;
-                if LexemeType::CNUM == next_lexeme.unwrap().lexeme_type {
-                    append_ok = result.append(next_lexeme.unwrap(), LexemeType::CNUM);
-                } else if LexemeType::COUNT == next_lexeme.unwrap().lexeme_type {
-                    append_ok = result.append(next_lexeme.unwrap(), LexemeType::CQUAN);
+                let next_lexeme = results.front();
+                if let Some(next) = next_lexeme {
+                    if LexemeType::CNUM == next.lexeme_type {
+                        append_ok = result.append(next, LexemeType::CNUM);
+                    } else if LexemeType::COUNT == next.lexeme_type {
+                        append_ok = result.append(next, LexemeType::CQUAN);
+                    }
                 }
                 if append_ok {
                     results.pop_front();
@@ -146,10 +148,12 @@ impl IKSegmenter {
             }
 
             if LexemeType::CNUM == result.lexeme_type && !results.is_empty() {
-                let next_lexeme = results.front();
                 let mut append_ok = false;
-                if LexemeType::COUNT == next_lexeme.unwrap().lexeme_type {
-                    append_ok = result.append(next_lexeme.unwrap(), LexemeType::CQUAN);
+                let next_lexeme = results.front();
+                if let Some(next) = next_lexeme {
+                    if LexemeType::COUNT == next.lexeme_type {
+                        append_ok = result.append(next, LexemeType::CQUAN);
+                    }
                 }
                 if append_ok {
                     results.pop_front();

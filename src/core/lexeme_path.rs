@@ -70,8 +70,9 @@ impl LexemePath {
         } else {
             self.payload_length -= tail.as_ref().unwrap().get_length();
             let new_tail = self.lexeme_list.peek_back();
-            self.path_end = (new_tail.as_ref().unwrap().get_begin() as i32)
-                + (new_tail.as_ref().unwrap().get_length() as i32);
+            if let Some(new) = new_tail {
+                self.path_end = new.get_begin() as i32 + new.get_length() as i32;
+            }
         }
         return tail;
     }
@@ -88,13 +89,13 @@ impl LexemePath {
         self.path_begin
     }
 
-    pub fn get_path_end(&self) -> i32 {
-        self.path_end
-    }
+    // pub fn get_path_end(&self) -> i32 {
+    //     self.path_end
+    // }
 
-    pub fn get_payload_length(&self) -> usize {
-        self.payload_length
-    }
+    // pub fn get_payload_length(&self) -> usize {
+    //     self.payload_length
+    // }
 
     pub fn get_path_length(&self) -> usize {
         (self.path_end - self.path_begin) as usize

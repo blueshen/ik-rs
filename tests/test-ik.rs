@@ -1,6 +1,13 @@
 #[cfg(test)]
 mod test {
+    use std::sync::Mutex;
+    use once_cell::sync::Lazy;
     use ik_rs::core::ik_segmenter::{IKSegmenter, TokenMode};
+
+    pub static GLOBAL_IK: Lazy<Mutex<IKSegmenter>> = Lazy::new(|| {
+        let ik = IKSegmenter::new();
+        Mutex::new(ik)
+    });
 
     #[test]
     fn test_index_segment() {
@@ -74,11 +81,10 @@ mod test {
     }
     // SEARCH Mode
     fn assert_search_token(text: &str, expect: Vec<&str>) {
-        let mut ik = IKSegmenter::new();
-        let tokens = ik.tokenize(text, TokenMode::SEARCH);
+        let tokens = GLOBAL_IK.lock().unwrap().tokenize(text, TokenMode::SEARCH);
         let mut token_texts = Vec::new();
         for token in tokens.iter() {
-            println!("{:?}", token);
+            // println!("{:?}", token);
             token_texts.push(token.get_lexeme_text());
         }
         assert_eq!(expect, token_texts);
@@ -86,11 +92,10 @@ mod test {
 
     // INDEX Mode
     fn assert_index_token(text: &str, expect: Vec<&str>) {
-        let mut ik = IKSegmenter::new();
-        let tokens = ik.tokenize(text, TokenMode::INDEX);
+        let tokens = GLOBAL_IK.lock().unwrap().tokenize(text, TokenMode::INDEX);
         let mut token_texts = Vec::new();
         for token in tokens.iter() {
-            println!("{:?}", token);
+            // println!("{:?}", token);
             token_texts.push(token.get_lexeme_text());
         }
         assert_eq!(expect, token_texts);

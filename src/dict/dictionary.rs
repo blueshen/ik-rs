@@ -2,7 +2,6 @@ use crate::config::configuration::Configuration;
 use crate::config::default_config::DefaultConfig;
 use crate::dict::hit::Hit;
 use crate::dict::trie::Trie;
-#[warn(unused_imports)]
 use once_cell;
 use once_cell::sync::Lazy;
 use std::fs::File;
@@ -13,7 +12,9 @@ use std::sync::Mutex;
 
 pub static GLOBAL_DICT: Lazy<Mutex<Dictionary>> = Lazy::new(|| {
     let mut dict = Dictionary::new();
-    dict.init();
+    if !dict.init() {
+        panic!("dict init fatal error")
+    }
     Mutex::new(dict)
 });
 
@@ -38,22 +39,25 @@ impl Dictionary {
         }
     }
 
-    pub fn init(&mut self) -> bool {
+    fn init(&mut self) -> bool {
         self.load_main_dict() && self.load_stop_word_dict() && self.load_quantifier_dict()
     }
 
+    #[allow(dead_code)]
     pub fn add_words(&mut self, words: Vec<&str>) -> () {
         for word in words {
             self.main_dict.insert(word);
         }
     }
 
+    #[allow(dead_code)]
     pub fn disable_words(&mut self, words: Vec<&str>) -> () {
         for word in words {
             self.main_dict.delete(word);
         }
     }
 
+    #[allow(dead_code)]
     pub fn match_in_main_dict(&mut self, word: &str) -> Vec<Hit> {
         self.main_dict.match_word(word)
     }

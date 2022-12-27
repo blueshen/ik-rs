@@ -19,62 +19,53 @@ impl IKArbitrator {
     ) -> HashMap<usize, LexemePath> {
         let mut path_map = HashMap::<usize, LexemePath>::new();
         let mut cross_path = LexemePath::new();
-        let mut cur_node = org_lexemes.head_node();
-        while let Some(node) = cur_node {
-            let ref_node = unsafe { node.as_ref() };
-            let org_lexeme = ref_node.ref_val();
+        for org_lexeme in org_lexemes.iter() {
             if !cross_path.add_cross_lexeme(org_lexeme) {
                 if cross_path.size() == 1 || !(mode == TokenMode::SEARCH) {
                     path_map.insert(cross_path.get_path_begin() as usize, cross_path);
                 } else {
                     let judge_result = self.judge(cross_path.get_head());
-                    path_map.insert(
-                        judge_result.as_ref().unwrap().get_path_begin() as usize,
-                        judge_result.unwrap(),
-                    );
+                    if let Some(path) = judge_result {
+                        path_map.insert(path.get_path_begin() as usize, path);
+                    }
                 }
                 cross_path = LexemePath::new();
                 cross_path.add_cross_lexeme(org_lexeme);
             }
-            cur_node = ref_node.next.as_ref();
         }
-
         if cross_path.size() == 1 || !(mode == TokenMode::SEARCH) {
             path_map.insert(cross_path.get_path_begin() as usize, cross_path);
         } else {
             let judge_result = self.judge(cross_path.get_head());
-            path_map.insert(
-                judge_result.as_ref().unwrap().get_path_begin() as usize,
-                judge_result.unwrap(),
-            );
+            if let Some(path) = judge_result {
+                path_map.insert(path.get_path_begin() as usize, path);
+            }
         }
         path_map
     }
 
-    pub fn judge(&mut self, cur_node: Option<&NonNull<Node<Lexeme>>>) -> Option<LexemePath> {
+    fn judge(&mut self, cur_node: Option<&NonNull<Node<Lexeme>>>) -> Option<LexemePath> {
         let mut path_options = BTreeSet::new();
         let mut option = LexemePath::new();
         let mut lexeme_stack = self.forward_path(cur_node, &mut option);
         path_options.insert(option.clone());
-        let mut c;
-        while !lexeme_stack.is_empty() {
-            c = lexeme_stack.pop();
-            self.back_path(c.unwrap(), &mut option);
-            self.forward_path(c.unwrap(), &mut option);
+        while let Some(node) = lexeme_stack.pop() {
+            self.back_path(node, &mut option);
+            self.forward_path(node, &mut option);
             path_options.insert(option.clone());
         }
         // pick first one
         let mut best = None;
         if !path_options.is_empty() {
-            for o in path_options.iter() {
-                best = Some(o.clone());
+            for o in path_options.into_iter() {
+                best = Some(o);
                 break;
             }
         }
         return best;
     }
 
-    pub fn forward_path<'a>(
+    fn forward_path<'a>(
         &'a self,
         cur_node: Option<&'a NonNull<Node<Lexeme>>>,
         option: &mut LexemePath,
@@ -82,7 +73,7 @@ impl IKArbitrator {
         let mut conflict_stack: Vec<Option<&NonNull<Node<Lexeme>>>> = Vec::new();
         let mut cur = cur_node;
         while let Some(node) = cur {
-            let ref_node = unsafe { node.as_ref() };
+            let ref_node = unsafe { node.as_ref() }; // safety
             let c = ref_node.ref_val();
             if !option.add_not_cross_lexeme(c) {
                 conflict_stack.push(cur);
@@ -92,9 +83,9 @@ impl IKArbitrator {
         return conflict_stack;
     }
 
-    pub fn back_path(&self, l: Option<&NonNull<Node<Lexeme>>>, option: &mut LexemePath) {
+    fn back_path(&self, l: Option<&NonNull<Node<Lexeme>>>, option: &mut LexemePath) {
         if let Some(node) = l {
-            let ref_node = unsafe { node.as_ref() };
+            let ref_node = unsafe { node.as_ref() }; // safety
             let lexeme = ref_node.ref_val();
             while option.check_cross(lexeme) {
                 option.remove_tail();
