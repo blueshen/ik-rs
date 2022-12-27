@@ -41,11 +41,11 @@ fn ik_tokenize() {
 }
 
 fn ik_benchmark(c: &mut Criterion) {
-    c.bench_function("ik_tokenize benchmark:", |b| b.iter(|| ik_tokenize()));
+    c.bench_function("ik_tokenize_benchmark", |b| b.iter(|| ik_tokenize()));
 }
 
 fn trie_benchmark(c: &mut Criterion) {
-    c.bench_function("trie_match benchmark:", |b| b.iter(|| trie_match()));
+    c.bench_function("trie_match_benchmark", |b| b.iter(|| trie_match()));
 }
 
 criterion_group!(benches, ik_benchmark, trie_benchmark);
