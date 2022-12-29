@@ -90,12 +90,12 @@ impl CnQuantifierSegmenter {
         if self.need_count_scan(cursor, origin_lexemes) {
             let char_count = utf8_len(input);
             if CharType::CHINESE == curr_char_type {
-                let hit_options = GLOBAL_DICT.lock().unwrap().match_in_quantifier_dict(
+                let hits = GLOBAL_DICT.lock().unwrap().match_in_quantifier_dict(
                     input,
                     cursor,
                     char_count - cursor,
                 );
-                for hit in hit_options.iter() {
+                for hit in hits.iter() {
                     if hit.is_match() {
                         let new_lexeme = Lexeme::new(hit.pos.clone(), LexemeType::COUNT);
                         origin_lexemes.insert(new_lexeme);
@@ -121,7 +121,7 @@ impl CnQuantifierSegmenter {
                 if lexeme.lexeme_type == LexemeType::ARABIC
                     || lexeme.lexeme_type == LexemeType::CNUM
                 {
-                    if lexeme.get_begin() + lexeme.get_length() == cursor {
+                    if lexeme.get_end_position() == cursor {
                         return true;
                     }
                 }

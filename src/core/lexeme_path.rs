@@ -25,13 +25,13 @@ impl LexemePath {
         return if self.lexeme_list.is_empty() {
             self.lexeme_list.insert(lexeme.clone());
             self.path_begin = lexeme.get_begin() as i32;
-            self.path_end = (lexeme.get_begin() + lexeme.get_length()) as i32;
+            self.path_end = lexeme.get_end_position() as i32;
             self.payload_length += lexeme.get_length();
             true
         } else if self.check_cross(&lexeme) {
             self.lexeme_list.insert(lexeme.clone());
-            if (lexeme.get_begin() + lexeme.get_length()) as i32 > self.path_end {
-                self.path_end = (lexeme.get_begin() + lexeme.get_length()) as i32;
+            if lexeme.get_end_position() as i32 > self.path_end {
+                self.path_end = lexeme.get_end_position() as i32;
             }
             self.payload_length = (self.path_end - self.path_begin) as usize;
             true
@@ -44,7 +44,7 @@ impl LexemePath {
         return if self.lexeme_list.is_empty() {
             self.lexeme_list.insert(lexeme.clone());
             self.path_begin = lexeme.get_begin() as i32;
-            self.path_end = (lexeme.get_begin() + lexeme.get_length()) as i32;
+            self.path_end = lexeme.get_end_position() as i32;
             self.payload_length += lexeme.get_length();
             true
         } else if self.check_cross(lexeme) {
@@ -53,10 +53,13 @@ impl LexemePath {
             self.lexeme_list.insert(lexeme.clone());
             self.payload_length += lexeme.get_length();
             let head = self.lexeme_list.peek_front(); //  peekFirst();
-            self.path_begin = head.unwrap().get_begin() as i32;
+            if let Some(h) = head {
+                self.path_begin = h.get_begin() as i32;
+            }
             let tail = self.lexeme_list.peek_back(); //  peekLast();
-            self.path_end =
-                (tail.unwrap().get_begin() as i32) + (tail.unwrap().get_length() as i32);
+            if let Some(t) = tail {
+                self.path_end = t.get_end_position() as i32;
+            }
             true
         };
     }

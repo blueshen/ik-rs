@@ -1,5 +1,5 @@
 use unicode_blocks;
-#[allow(dead_code)]
+
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub enum CharType {
     USELESS,
