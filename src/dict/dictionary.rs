@@ -18,6 +18,29 @@ pub static GLOBAL_DICT: Lazy<Mutex<Dictionary>> = Lazy::new(|| {
     Mutex::new(dict)
 });
 
+fn load(dict: &mut Trie, file_path: &str) -> bool {
+    let open_file = File::open(file_path);
+    match open_file {
+        Ok(file) => {
+            let reader = BufReader::new(file);
+            for line in reader.lines() {
+                match line {
+                    Ok(word) => {
+                        dict.insert(&word.trim());
+                    }
+                    Err(e) => {
+                        panic!("read dict:{} error:{}", file_path, e);
+                    }
+                }
+            }
+            println!("after load dict:{}, size = {}", file_path, dict.size());
+            return true;
+        }
+        Err(e) => {
+            panic!("open dict:{} error:{}", file_path, e);
+        }
+    }
+}
 /// Dictionary Manager
 pub struct Dictionary {
     main_dict: Trie,
@@ -58,12 +81,12 @@ impl Dictionary {
     }
 
     #[allow(dead_code)]
-    pub fn match_in_main_dict(&mut self, word: &str) -> Vec<Hit> {
+    pub fn match_in_main_dict(&self, word: &str) -> Vec<Hit> {
         self.main_dict.match_word(word)
     }
 
     pub fn match_in_main_dict_with_offset(
-        &mut self,
+        &self,
         word: &str,
         offset: usize,
         length: usize,
@@ -71,17 +94,12 @@ impl Dictionary {
         self.main_dict.match_word_with_offset(word, offset, length)
     }
 
-    pub fn match_in_quantifier_dict(
-        &mut self,
-        word: &str,
-        offset: usize,
-        length: usize,
-    ) -> Vec<Hit> {
+    pub fn match_in_quantifier_dict(&self, word: &str, offset: usize, length: usize) -> Vec<Hit> {
         self.quantifier_dict
             .match_word_with_offset(word, offset, length)
     }
 
-    pub fn is_stop_word(&mut self, word: &str, offset: usize, length: usize) -> bool {
+    pub fn is_stop_word(&self, word: &str, offset: usize, length: usize) -> bool {
         let hits = self
             .stop_word_dict
             .match_word_with_offset(word, offset, length);
@@ -95,87 +113,37 @@ impl Dictionary {
 
     fn load_main_dict(&mut self) -> bool {
         let main_dict_path = self.cfg.get_main_dictionary();
-        let file = File::open(main_dict_path).expect("Open main_dict error!");
-        let reader = BufReader::new(file);
-        let mut total: usize = 0;
-        for line in reader.lines() {
-            match line {
-                Ok(word) => {
-                    self.main_dict.insert(&word.trim());
-                    total += 1;
-                }
-                Err(e) => {
-                    panic!("main dict read error:{}", e);
-                }
-            }
+        if load(&mut self.main_dict, main_dict_path.as_str()) {
+            return self.load_ext_dict();
         }
-        println!("load main_dict size = {}", total);
-        self.load_ext_dict()
+        false
     }
 
     fn load_ext_dict(&mut self) -> bool {
         let ext_dict_files = self.cfg.get_ext_dictionaries();
-        let mut total = 0;
+        let mut ret = true;
         for ext_dict_file in ext_dict_files {
-            let file = File::open(ext_dict_file).expect("open error");
-            let reader = BufReader::new(file);
-            for line in reader.lines() {
-                match line {
-                    Ok(word) => {
-                        self.main_dict.insert(&word.trim());
-                        total += 1;
-                    }
-                    Err(e) => {
-                        panic!("ext dict read error:{}", e);
-                    }
-                }
+            if !load(&mut self.main_dict, ext_dict_file.as_str()) {
+                ret = false;
             }
         }
-        println!("ext dict total size = {}", total);
-        true
+        ret
     }
 
     fn load_stop_word_dict(&mut self) -> bool {
         let ext_stop_word_dict_files = self.cfg.get_ext_stop_word_dictionaries();
-        let mut total = 0usize;
+        let mut ret = true;
         for stop_file in ext_stop_word_dict_files {
-            println!("{}", stop_file);
-            let file = File::open(stop_file).expect("open error");
-            let reader = BufReader::new(file);
-            for line in reader.lines() {
-                match line {
-                    Ok(word) => {
-                        self.stop_word_dict.insert(&word.trim());
-                        total += 1;
-                    }
-                    Err(e) => {
-                        panic!("stop dict read error:{}", e);
-                    }
-                }
+            if !load(&mut self.stop_word_dict, stop_file.as_str()) {
+                ret = false;
             }
         }
-        println!("stop dict total size = {}", total);
-        true
+        ret
     }
 
     fn load_quantifier_dict(&mut self) -> bool {
         let file_path = self.cfg.get_quantifier_dictionary();
-        let file = File::open(&file_path[..]).expect("open error");
-        let reader = BufReader::new(file);
-        let mut total = 0usize;
-        for line in reader.lines() {
-            match line {
-                Ok(word) => {
-                    self.quantifier_dict.insert(&word.trim());
-                    total += 1;
-                }
-                Err(e) => {
-                    panic!("quantifier dict read error:{}", e);
-                }
-            }
-        }
-        println!("quantifier_dict total size = {}", total);
-        true
+        load(&mut self.quantifier_dict, file_path.as_str())
     }
 }
 
@@ -193,7 +161,7 @@ mod test {
         dictionary.add_words(words);
 
         let vec_exist = vec!["一夕之间", "ab", "万般皆下品唯有读书高", "张三", "张"];
-        println!("{}", "一夕之间".to_string().len());
+        // println!("{}", "一夕之间".to_string().len());
         for word in vec_exist {
             let hits = dictionary.match_in_main_dict(word);
             assert_eq!(true, hits.len() > 0);
