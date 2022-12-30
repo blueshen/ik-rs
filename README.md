@@ -1,5 +1,5 @@
 <!-- Badges section here. -->
-[![Crates.io](https://img.shields.io/badge/crates.io-0.3.0-green)](https://crates.io/crates/ik-rs)
+[![Crates.io](https://img.shields.io/badge/crates.io-0.3.1-green)](https://crates.io/crates/ik-rs)
 [![License](https://img.shields.io/badge/license-LGPL--2.1-blue)](./LICENSE)
 [![Open Source Love](https://badges.frapsoft.com/os/v1/open-source.svg?v=103)](https://github.com/blueshen/ik-rs/releases)
 [![Build Status](https://app.travis-ci.com/blueshen/ik-rs.svg?branch=main)](https://app.travis-ci.com/github/blueshen/ik-rs)
@@ -15,6 +15,11 @@
 
 
 # Usage
+## add to Cargo.toml
+```toml
+[dependencies]
+ik-rs = "0.3.1"
+```
 
 ## Chinese Segment
 ```rust
@@ -31,7 +36,7 @@
 use [tantivy-ik](https://github.com/blueshen/tantivy-ik) project
 
 ---
-Welcome rust developer and search engine developer join us, and maintain this project together!
+Welcome to rust developer and search engine developer join us, and maintain this project together!
 
 you can PR or submit issue...
 

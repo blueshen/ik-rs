@@ -1,4 +1,7 @@
 # ik-rs
+## 0.3.1
+safety & simplify code
+
 ## 0.3.0
 more stable && performance++
 
