@@ -64,7 +64,7 @@ impl LetterSegmenter {
         if self.start == -1 {
             if CharType::ARABIC == curr_char_type || CharType::ENGLISH == curr_char_type {
                 self.start = cursor as i32;
-                self.end = self.start;
+                self.end = cursor as i32;
             }
         } else {
             if CharType::ARABIC == curr_char_type || CharType::ENGLISH == curr_char_type {
@@ -100,10 +100,28 @@ impl LetterSegmenter {
         origin_lexemes: &mut OrderedLinkedList<Lexeme>,
     ) {
         let char_count = utf8_len(input);
+        // match curr_char_type {
+        //     CharType::ENGLISH => {
+        //         if self.english_start == -1 {
+        //             self.english_start = cursor as i32;
+        //         }
+        //         self.english_end = cursor as i32;
+        //     },
+        //     _ => {
+        //         if self.english_start != -1 {
+        //             let new_lexeme = Lexeme::new(
+        //                 (self.english_start as usize)..(self.english_end + 1) as usize,
+        //                 LexemeType::ENGLISH,
+        //             );
+        //             origin_lexemes.insert(new_lexeme);
+        //             self.reset_english_state();
+        //         }
+        //     }
+        // }
         if self.english_start == -1 {
             if CharType::ENGLISH == curr_char_type {
                 self.english_start = cursor as i32;
-                self.english_end = self.english_start;
+                self.english_end = cursor as i32;
             }
         } else {
             if CharType::ENGLISH == curr_char_type {
@@ -141,7 +159,7 @@ impl LetterSegmenter {
         if self.arabic_start == -1 {
             if CharType::ARABIC == curr_char_type {
                 self.arabic_start = cursor as i32;
-                self.arabic_end = self.arabic_start;
+                self.arabic_end = cursor as i32;
             }
         } else {
             if CharType::ARABIC == curr_char_type {

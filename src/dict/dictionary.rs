@@ -112,8 +112,8 @@ impl Dictionary {
     }
 
     fn load_main_dict(&mut self) -> bool {
-        let main_dict_path = self.cfg.get_main_dictionary();
-        if load(&mut self.main_dict, main_dict_path.as_str()) {
+        let file_path = self.cfg.get_main_dictionary();
+        if load(&mut self.main_dict, file_path.as_str()) {
             return self.load_ext_dict();
         }
         false
@@ -161,7 +161,6 @@ mod test {
         dictionary.add_words(words);
 
         let vec_exist = vec!["一夕之间", "ab", "万般皆下品唯有读书高", "张三", "张"];
-        // println!("{}", "一夕之间".to_string().len());
         for word in vec_exist {
             let hits = dictionary.match_in_main_dict(word);
             assert_eq!(true, hits.len() > 0);
