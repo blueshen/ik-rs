@@ -23,12 +23,37 @@ ik-rs = "0.3.1"
 
 ## Chinese Segment
 ```rust
-    let mut ik = IKSegmenter::new();
-    let text = "中华人民共和国";
-    let tokens = ik.tokenize(text, TokenMode::INDEX); // TokenMode::SEARCH
-    for token in tokens {
-        println!("{:?}", token);
+#[cfg(test)]
+mod test {
+    use ik_rs::core::ik_segmenter::{IKSegmenter, TokenMode};
+
+    #[test]
+    pub fn test_ik() {
+        let mut ik = IKSegmenter::new();
+        let text = "中华人民共和国";
+        let tokens = ik.tokenize(text, TokenMode::INDEX); // TokenMode::SEARCH
+        let mut token_texts = Vec::new();
+        for token in tokens.iter() {
+            println!("{:?}", token);
+            token_texts.push(token.get_lexeme_text());
+        }
+        assert_eq!(
+            token_texts,
+            vec![
+                "中华人民共和国",
+                "中华人民",
+                "中华",
+                "华人",
+                "人民共和国",
+                "人民",
+                "共和国",
+                "共和",
+                "国"
+            ]
+        )
     }
+}
+
 ```
 
 # Usage for Tantivy
