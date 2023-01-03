@@ -16,21 +16,22 @@ pub fn char_type_of(input: char) -> CharType {
     } else if (input >= 'a' && input <= 'z') || (input >= 'A' && input <= 'Z') {
         return CharType::ENGLISH;
     } else {
-        let ub = unicode_blocks::find_unicode_block(input).unwrap();
-        if ub == unicode_blocks::CJK_UNIFIED_IDEOGRAPHS
-            || ub == unicode_blocks::CJK_COMPATIBILITY_IDEOGRAPHS
-            || ub == unicode_blocks::CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A
-        {
-            return CharType::CHINESE;
-        } else if ub == unicode_blocks::HALFWIDTH_AND_FULLWIDTH_FORMS
-            || ub == unicode_blocks::HANGUL_SYLLABLES
-            || ub == unicode_blocks::HANGUL_JAMO
-            || ub == unicode_blocks::HANGUL_COMPATIBILITY_JAMO
-            || ub == unicode_blocks::HIRAGANA
-            || ub == unicode_blocks::KATAKANA
-            || ub == unicode_blocks::KATAKANA_PHONETIC_EXTENSIONS
-        {
-            return CharType::OtherCjk;
+        if let Some(ub) = unicode_blocks::find_unicode_block(input) {
+            if ub == unicode_blocks::CJK_UNIFIED_IDEOGRAPHS
+                || ub == unicode_blocks::CJK_COMPATIBILITY_IDEOGRAPHS
+                || ub == unicode_blocks::CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A
+            {
+                return CharType::CHINESE;
+            } else if ub == unicode_blocks::HALFWIDTH_AND_FULLWIDTH_FORMS
+                || ub == unicode_blocks::HANGUL_SYLLABLES
+                || ub == unicode_blocks::HANGUL_JAMO
+                || ub == unicode_blocks::HANGUL_COMPATIBILITY_JAMO
+                || ub == unicode_blocks::HIRAGANA
+                || ub == unicode_blocks::KATAKANA
+                || ub == unicode_blocks::KATAKANA_PHONETIC_EXTENSIONS
+            {
+                return CharType::OtherCjk;
+            }
         }
     }
     return CharType::USELESS;

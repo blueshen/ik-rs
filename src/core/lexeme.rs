@@ -16,6 +16,23 @@ pub enum LexemeType {
     CQUAN,
 }
 
+impl LexemeType {
+    pub fn as_str(&self) -> &str {
+        match self {
+            LexemeType::ENGLISH => "ENGLISH",
+            LexemeType::ARABIC => "ARABIC",
+            LexemeType::LETTER => "LETTER",
+            LexemeType::CNWORD => "CN_WORD",
+            LexemeType::CNCHAR => "CN_CHAR",
+            LexemeType::OtherCJK => "OtherCjk",
+            LexemeType::COUNT => "COUNT",
+            LexemeType::CNUM => "TYPE_CNUM",
+            LexemeType::CQUAN => "TYPE_CQUAN",
+            _ => "UNKNOW",
+        }
+    }
+}
+
 #[derive(Debug)]
 pub struct Lexeme {
     offset: usize, // maybe use later, current default = 0
@@ -43,9 +60,9 @@ impl PartialEq for Lexeme {
 
 impl PartialOrd for Lexeme {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        return if self.get_begin() < other.get_begin() {
+        return if self.get_begin_position() < other.get_begin_position() {
             Some(Ordering::Less)
-        } else if self.get_begin() == other.get_begin() {
+        } else if self.get_begin_position() == other.get_begin_position() {
             if self.pos.len() > other.pos.len() {
                 Some(Ordering::Less)
             } else if self.pos.len() == other.pos.len() {
@@ -69,10 +86,6 @@ impl Lexeme {
         }
     }
 
-    pub fn get_begin(&self) -> usize {
-        self.pos.start
-    }
-
     pub fn get_begin_position(&self) -> usize {
         self.offset + self.pos.start
     }
@@ -92,21 +105,6 @@ impl Lexeme {
     pub fn parse_lexeme_text(&mut self, input: &str) {
         let sub_text = utf8_slice(input, self.get_begin_position(), self.get_end_position());
         self.lexeme_text = sub_text.to_string();
-    }
-
-    pub fn get_lexeme_type_string(&self) -> &str {
-        match &self.lexeme_type {
-            LexemeType::ENGLISH => "ENGLISH",
-            LexemeType::ARABIC => "ARABIC",
-            LexemeType::LETTER => "LETTER",
-            LexemeType::CNWORD => "CN_WORD",
-            LexemeType::CNCHAR => "CN_CHAR",
-            LexemeType::OtherCJK => "OtherCjk",
-            LexemeType::COUNT => "COUNT",
-            LexemeType::CNUM => "TYPE_CNUM",
-            LexemeType::CQUAN => "TYPE_CQUAN",
-            _ => "UNKNOW",
-        }
     }
 
     pub fn append(&mut self, l: &Lexeme, lexeme_type: LexemeType) -> bool {

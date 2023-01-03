@@ -61,7 +61,7 @@ impl IKSegmenter {
             }
             if !GLOBAL_DICT.lock().unwrap().is_stop_word(
                 input,
-                result_value.get_begin(),
+                result_value.get_begin_position(),
                 result_value.get_length(),
             ) {
                 result_value.parse_lexeme_text(input);
@@ -89,13 +89,13 @@ impl IKSegmenter {
             }
             let path = path_map.get_mut(&index);
             if let Some(p) = path {
-                let mut l = p.poll_first();
-                while let Some(ref l_value) = l {
-                    results.push_back(l_value.clone());
-                    index = l_value.get_end_position();
-                    l = p.poll_first();
-                    if let Some(ref new_l_value) = l {
-                        while index < new_l_value.get_begin() {
+                let mut cur_lexeme = p.poll_first();
+                while let Some(ref lexeme) = cur_lexeme {
+                    results.push_back(lexeme.clone());
+                    index = lexeme.get_end_position();
+                    cur_lexeme = p.poll_first();
+                    if let Some(ref lexeme) = cur_lexeme {
+                        while index < lexeme.get_begin_position() {
                             let curr_char = input.chars().nth(index).unwrap();
                             let cur_char_type = char_type_of(curr_char);
                             self.add_single_lexeme(&mut results, cur_char_type, index);

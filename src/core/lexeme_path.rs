@@ -24,7 +24,7 @@ impl LexemePath {
     pub fn add_cross_lexeme(&mut self, lexeme: &Lexeme) -> bool {
         return if self.lexeme_list.is_empty() {
             self.lexeme_list.insert(lexeme.clone());
-            self.path_begin = lexeme.get_begin() as i32;
+            self.path_begin = lexeme.get_begin_position() as i32;
             self.path_end = lexeme.get_end_position() as i32;
             self.payload_length += lexeme.get_length();
             true
@@ -43,7 +43,7 @@ impl LexemePath {
     pub fn add_not_cross_lexeme(&mut self, lexeme: &Lexeme) -> bool {
         return if self.lexeme_list.is_empty() {
             self.lexeme_list.insert(lexeme.clone());
-            self.path_begin = lexeme.get_begin() as i32;
+            self.path_begin = lexeme.get_begin_position() as i32;
             self.path_end = lexeme.get_end_position() as i32;
             self.payload_length += lexeme.get_length();
             true
@@ -54,7 +54,7 @@ impl LexemePath {
             self.payload_length += lexeme.get_length();
             let head = self.lexeme_list.peek_front(); //  peekFirst();
             if let Some(h) = head {
-                self.path_begin = h.get_begin() as i32;
+                self.path_begin = h.get_begin_position() as i32;
             }
             let tail = self.lexeme_list.peek_back(); //  peekLast();
             if let Some(t) = tail {
@@ -74,14 +74,14 @@ impl LexemePath {
             self.payload_length -= tail.as_ref().unwrap().get_length();
             let new_tail = self.lexeme_list.peek_back();
             if let Some(new) = new_tail {
-                self.path_end = new.get_begin() as i32 + new.get_length() as i32;
+                self.path_end = new.get_end_position() as i32;
             }
         }
         return tail;
     }
 
     pub fn check_cross(&self, lexeme: &Lexeme) -> bool {
-        let l_begin = lexeme.get_begin() as i32;
+        let l_begin = lexeme.get_begin_position() as i32;
         let l_length = lexeme.get_length() as i32;
         let cross = (l_begin >= self.path_begin && l_begin < self.path_end)
             || (self.path_begin >= l_begin && self.path_begin < l_begin + l_length);

@@ -80,7 +80,7 @@ impl TrieNode {
         let mut del_success = 0usize;
         for (_, curr_char) in string_val.chars().enumerate() {
             if !current_node.child_nodes.contains_key(&curr_char) {
-                return del_success
+                return del_success;
             }
             current_node = current_node.child_nodes.get_mut(&curr_char).unwrap();
         }

@@ -1,8 +1,8 @@
 #[cfg(test)]
 mod test {
-    use std::sync::Mutex;
-    use once_cell::sync::Lazy;
     use ik_rs::core::ik_segmenter::{IKSegmenter, TokenMode};
+    use once_cell::sync::Lazy;
+    use std::sync::Mutex;
 
     pub static GLOBAL_IK: Lazy<Mutex<IKSegmenter>> = Lazy::new(|| {
         let ik = IKSegmenter::new();

@@ -100,24 +100,6 @@ impl LetterSegmenter {
         origin_lexemes: &mut OrderedLinkedList<Lexeme>,
     ) {
         let char_count = utf8_len(input);
-        // match curr_char_type {
-        //     CharType::ENGLISH => {
-        //         if self.english_start == -1 {
-        //             self.english_start = cursor as i32;
-        //         }
-        //         self.english_end = cursor as i32;
-        //     },
-        //     _ => {
-        //         if self.english_start != -1 {
-        //             let new_lexeme = Lexeme::new(
-        //                 (self.english_start as usize)..(self.english_end + 1) as usize,
-        //                 LexemeType::ENGLISH,
-        //             );
-        //             origin_lexemes.insert(new_lexeme);
-        //             self.reset_english_state();
-        //         }
-        //     }
-        // }
         if self.english_start == -1 {
             if CharType::ENGLISH == curr_char_type {
                 self.english_start = cursor as i32;
