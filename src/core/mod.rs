@@ -1,10 +1,10 @@
-pub mod char_util;
-mod cjk_segmenter;
-mod cn_quantifier_segmenter;
-mod ik_arbitrator;
+pub(crate) mod char_util;
+pub(crate) mod cjk_segmenter;
+pub(crate) mod cn_quantifier_segmenter;
+pub(crate) mod ik_arbitrator;
 pub mod ik_segmenter;
-mod letter_segmentor;
-mod lexeme;
-mod lexeme_path;
-pub mod ordered_linked_list;
+pub(crate) mod letter_segmentor;
+pub(crate) mod lexeme;
+pub(crate) mod lexeme_path;
+pub(crate) mod ordered_linked_list;
 pub mod segmentor;

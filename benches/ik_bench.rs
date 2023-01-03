@@ -1,9 +1,9 @@
 use criterion::*;
-use ik_rs::core::ik_segmenter::{IKSegmenter, TokenMode};
-use ik_rs::dict::trie::Trie;
 use once_cell::sync::Lazy;
 use random_string;
 use std::sync::Mutex;
+use ik_rs::core::ik_segmenter::{IKSegmenter, TokenMode};
+use ik_rs::dict::trie::Trie;
 
 pub static GLOBAL_IK: Lazy<Mutex<IKSegmenter>> = Lazy::new(|| {
     let ik = IKSegmenter::new();
