@@ -1,5 +1,5 @@
 <!-- Badges section here. -->
-[![Crates.io](https://img.shields.io/badge/crates.io-0.3.1-green)](https://crates.io/crates/ik-rs)
+[![Crates.io](https://img.shields.io/badge/crates.io-0.3.2-green)](https://crates.io/crates/ik-rs)
 [![License](https://img.shields.io/badge/license-LGPL--2.1-blue)](./LICENSE)
 [![Open Source Love](https://badges.frapsoft.com/os/v1/open-source.svg?v=103)](https://github.com/blueshen/ik-rs/releases)
 [![Build Status](https://app.travis-ci.com/blueshen/ik-rs.svg?branch=main)](https://app.travis-ci.com/github/blueshen/ik-rs)
@@ -18,7 +18,7 @@
 ## add to Cargo.toml
 ```toml
 [dependencies]
-ik-rs = "0.3.1"
+ik-rs = "0.3.2"
 ```
 
 ## Chinese Segment
