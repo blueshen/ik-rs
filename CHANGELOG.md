@@ -1,4 +1,6 @@
 # ik-rs
+## 0.3.2
+beta release
 ## 0.3.1
 safety & simplify code
 
