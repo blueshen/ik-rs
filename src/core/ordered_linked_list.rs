@@ -600,6 +600,7 @@ impl<'a, T: PartialOrd> DoubleEndedIterator for IterMut<'a, T> {
 mod test {
     use super::OrderedLinkedList;
     use crate::core::lexeme::{Lexeme, LexemeType};
+    use log;
 
     #[test]
     fn test_compiling() {}
@@ -669,7 +670,7 @@ mod test {
 
         let list2 = _new_list_string();
         let list2_to_len = list2.into_iter().map(|x| x.len()).collect::<Vec<usize>>();
-        println!(
+        log::info!(
             "transform list2 into len vec, list2_to_len: {:?}",
             list2_to_len
         );

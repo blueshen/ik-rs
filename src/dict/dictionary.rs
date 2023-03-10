@@ -33,7 +33,7 @@ fn load(dict: &mut Trie, file_path: &str) -> bool {
                     }
                 }
             }
-            println!("after load dict:{}, size = {}", file_path, dict.size());
+            log::debug!("after load dict:{}, size = {}", file_path, dict.size());
             return true;
         }
         Err(e) => {

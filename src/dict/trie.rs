@@ -239,7 +239,7 @@ mod test {
         assert_eq!(0, hits.len());
         let hits = trie.match_word(&String::from("Tea"));
         for hit in hits.iter() {
-            println!("{:?}", hit);
+            log::info!("{:?}", hit);
         }
     }
 }

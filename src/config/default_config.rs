@@ -85,14 +85,15 @@ impl Configuration for DefaultConfig {
 #[cfg(test)]
 mod test {
     use super::*;
+    use log;
 
     #[test]
     pub fn test_config() {
         let config = DefaultConfig::new();
-        println!("{:?}", config);
-        println!("{}", config.get_main_dictionary());
-        println!("{}", config.get_quantifier_dictionary());
-        println!("{:?}", config.get_ext_dictionaries());
-        println!("{:?}", config.get_ext_stop_word_dictionaries());
+        log::info!("{:?}", config);
+        log::info!("{}", config.get_main_dictionary());
+        log::info!("{}", config.get_quantifier_dictionary());
+        log::info!("{:?}", config.get_ext_dictionaries());
+        log::info!("{:?}", config.get_ext_stop_word_dictionaries());
     }
 }

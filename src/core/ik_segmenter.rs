@@ -166,6 +166,7 @@ impl IKSegmenter {
 #[cfg(test)]
 mod test {
     use super::*;
+    use log;
 
     #[test]
     fn test_index_segment() {
@@ -174,9 +175,9 @@ mod test {
         for text in texts {
             let tokens = ik.tokenize(text, TokenMode::INDEX);
             for token in tokens.iter() {
-                println!("{:?}", token);
+                log::info!("{:?}", token);
             }
-            println!("{}", "----------------------")
+            log::info!("{}", "----------------------")
         }
     }
 
@@ -187,9 +188,9 @@ mod test {
         for text in texts {
             let tokens = ik.tokenize(text, TokenMode::SEARCH);
             for token in tokens.iter() {
-                println!("{:?}", token);
+                log::info!("{:?}", token);
             }
-            println!("{}", "----------------------")
+            log::info!("{}", "----------------------")
         }
     }
 

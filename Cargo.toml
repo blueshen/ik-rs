@@ -17,9 +17,9 @@ serde = { version = "1", features = ["derive"] }
 serde_yaml = "0.9.11"
 unicode-blocks = "0.1.4"
 once_cell = "1.16.0"
+log = "0.4.17"
 
 [dev-dependencies]
-log = "0.4.17"
 criterion = "0.4.0"
 random-string = "1.0.0"
 
