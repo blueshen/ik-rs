@@ -10,8 +10,8 @@ const SEGMENTER_NAME: &str = "QUAN_SEGMENTER";
 
 #[derive(Debug)]
 pub struct CnQuantifierSegmenter {
-    start: i32,
-    end: i32,
+    start: Option<usize>,
+    end: Option<usize>,
     chn_number_chars: HashSet<char>,
 }
 
@@ -34,8 +34,8 @@ impl Segmenter for CnQuantifierSegmenter {
 impl CnQuantifierSegmenter {
     pub fn new() -> Self {
         CnQuantifierSegmenter {
-            start: -1,
-            end: -1,
+            start: None,
+            end: None,
             chn_number_chars: HashSet::from([
                 '一', '二', '两', '三', '四', '五', '六', '七', '八', '九', '十', '零', '壹', '贰',
                 '叁', '肆', '伍', '陆', '柒', '捌', '玖', '拾', '百', '千', '万', '亿', '拾', '佰',
@@ -51,32 +51,39 @@ impl CnQuantifierSegmenter {
         curr_char_type: CharType,
         origin_lexemes: &mut OrderedLinkedList<Lexeme>,
     ) {
-        let curr_char = input.chars().nth(cursor).unwrap();
+        let curr_char = &input.chars().nth(cursor).unwrap();
         let char_count = utf8_len(input);
         if self.initial_state() {
-            if CharType::CHINESE == curr_char_type && self.chn_number_chars.contains(&curr_char) {
-                self.start = cursor as i32;
-                self.end = cursor as i32;
+            match curr_char_type {
+                CharType::CHINESE => {
+                    if self.chn_number_chars.contains(&curr_char) {
+                        self.start = Some(cursor);
+                        self.end = Some(cursor);
+                    }
+                }
+                _ => {}
             }
         } else {
-            if CharType::CHINESE == curr_char_type && self.chn_number_chars.contains(&curr_char) {
-                self.end = cursor as i32;
+            if curr_char_type == CharType::CHINESE && self.chn_number_chars.contains(&curr_char) {
+                self.end = Some(cursor);
             } else {
                 let new_lexeme = Lexeme::new(
-                    (self.start as usize)..(self.end + 1) as usize,
+                    (self.start.unwrap())..(self.end.unwrap() + 1),
                     LexemeType::CNUM,
                 );
                 origin_lexemes.insert(new_lexeme);
                 self.reset_state();
             }
         }
-        if self.end == (char_count - 1) as i32 {
-            let new_lexeme = Lexeme::new(
-                (self.start as usize)..(self.end + 1) as usize,
-                LexemeType::CNUM,
-            );
-            origin_lexemes.insert(new_lexeme);
-            self.reset_state();
+        if let Some(index) = self.end {
+            if index == (char_count - 1) {
+                let new_lexeme = Lexeme::new(
+                    (self.start.unwrap())..(self.end.unwrap() + 1),
+                    LexemeType::CNUM,
+                );
+                origin_lexemes.insert(new_lexeme);
+                self.reset_state();
+            }
         }
     }
 
@@ -89,18 +96,21 @@ impl CnQuantifierSegmenter {
     ) {
         if self.need_count_scan(cursor, origin_lexemes) {
             let char_count = utf8_len(input);
-            if CharType::CHINESE == curr_char_type {
-                let hits = GLOBAL_DICT.lock().unwrap().match_in_quantifier_dict(
-                    input,
-                    cursor,
-                    char_count - cursor,
-                );
-                for hit in hits.iter() {
-                    if hit.is_match() {
-                        let new_lexeme = Lexeme::new(hit.pos.clone(), LexemeType::COUNT);
-                        origin_lexemes.insert(new_lexeme);
+            match curr_char_type {
+                CharType::CHINESE => {
+                    let hits = GLOBAL_DICT.lock().unwrap().match_in_quantifier_dict(
+                        input,
+                        cursor,
+                        char_count - cursor,
+                    );
+                    for hit in hits.iter() {
+                        if hit.is_match() {
+                            let new_lexeme = Lexeme::new(hit.pos.clone(), LexemeType::COUNT);
+                            origin_lexemes.insert(new_lexeme);
+                        }
                     }
                 }
+                _ => {}
             }
         }
     }
@@ -110,7 +120,7 @@ impl CnQuantifierSegmenter {
         cursor: usize,
         origin_lexemes: &mut OrderedLinkedList<Lexeme>,
     ) -> bool {
-        if self.start != -1 && self.end != -1 {
+        if self.start.is_some() && self.end.is_some() {
             return true;
         }
         if origin_lexemes.is_empty() {
@@ -131,11 +141,23 @@ impl CnQuantifierSegmenter {
     }
 
     fn initial_state(&self) -> bool {
-        self.start == -1 && self.end == -1
+        match self.start {
+            None => match self.end {
+                None => {
+                    return true;
+                }
+                Some(_) => {
+                    return false;
+                }
+            },
+            Some(_) => {
+                return false;
+            }
+        }
     }
 
     fn reset_state(&mut self) {
-        self.start = -1;
-        self.end = -1;
+        self.start = None;
+        self.end = None;
     }
 }

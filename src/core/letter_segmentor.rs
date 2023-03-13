@@ -11,14 +11,14 @@ const LETTER_CONNECTOR: [char; 7] = ['#', '&', '+', '-', '.', '@', '_'];
 const NUM_CONNECTOR: [char; 2] = [',', '.'];
 
 pub struct LetterSegmenter {
-    start: i32,
-    end: i32,
+    start: Option<usize>,
+    end: Option<usize>,
 
-    english_start: i32,
-    english_end: i32,
+    english_start: Option<usize>,
+    english_end: Option<usize>,
 
-    arabic_start: i32,
-    arabic_end: i32,
+    arabic_start: Option<usize>,
+    arabic_end: Option<usize>,
 }
 
 impl Segmenter for LetterSegmenter {
@@ -41,12 +41,12 @@ impl Segmenter for LetterSegmenter {
 impl LetterSegmenter {
     pub fn new() -> Self {
         LetterSegmenter {
-            start: -1,
-            end: -1,
-            english_start: -1,
-            english_end: -1,
-            arabic_start: -1,
-            arabic_end: -1,
+            start: None,
+            end: None,
+            english_start: None,
+            english_end: None,
+            arabic_start: None,
+            arabic_end: None,
         }
     }
 
@@ -61,33 +61,39 @@ impl LetterSegmenter {
     ) {
         let curr_char = input.chars().nth(cursor).unwrap();
         let char_count = utf8_len(input);
-        if self.start == -1 {
-            if CharType::ARABIC == curr_char_type || CharType::ENGLISH == curr_char_type {
-                self.start = cursor as i32;
-                self.end = cursor as i32;
+        match self.start {
+            None => {
+                if CharType::ARABIC == curr_char_type || CharType::ENGLISH == curr_char_type {
+                    self.start = Some(cursor);
+                    self.end = Some(cursor);
+                }
             }
-        } else {
-            if CharType::ARABIC == curr_char_type || CharType::ENGLISH == curr_char_type {
-                self.end = cursor as i32;
-            } else if CharType::USELESS == curr_char_type && self.is_letter_connector(curr_char) {
-                self.end = cursor as i32;
-            } else {
+            Some(_) => {
+                if CharType::ARABIC == curr_char_type || CharType::ENGLISH == curr_char_type {
+                    self.end = Some(cursor);
+                } else if CharType::USELESS == curr_char_type && self.is_letter_connector(curr_char)
+                {
+                    self.end = Some(cursor);
+                } else {
+                    let new_lexeme = Lexeme::new(
+                        (self.start.unwrap())..(self.end.unwrap() + 1),
+                        LexemeType::LETTER,
+                    );
+                    origin_lexemes.insert(new_lexeme);
+                    self.reset_mix_state();
+                }
+            }
+        }
+
+        if let Some(index) = self.end {
+            if index == (char_count - 1) {
                 let new_lexeme = Lexeme::new(
-                    (self.start as usize)..(self.end + 1) as usize,
+                    (self.start.unwrap())..(self.end.unwrap() + 1),
                     LexemeType::LETTER,
                 );
                 origin_lexemes.insert(new_lexeme);
                 self.reset_mix_state();
             }
-        }
-
-        if self.end == (char_count - 1) as i32 {
-            let new_lexeme = Lexeme::new(
-                (self.start as usize)..(self.end + 1) as usize,
-                LexemeType::LETTER,
-            );
-            origin_lexemes.insert(new_lexeme);
-            self.reset_mix_state();
         }
     }
 
@@ -100,31 +106,38 @@ impl LetterSegmenter {
         origin_lexemes: &mut OrderedLinkedList<Lexeme>,
     ) {
         let char_count = utf8_len(input);
-        if self.english_start == -1 {
-            if CharType::ENGLISH == curr_char_type {
-                self.english_start = cursor as i32;
-                self.english_end = cursor as i32;
-            }
-        } else {
-            if CharType::ENGLISH == curr_char_type {
-                self.english_end = cursor as i32;
-            } else {
+        match self.english_start {
+            None => match curr_char_type {
+                CharType::ENGLISH => {
+                    self.english_start = Some(cursor);
+                    self.english_end = Some(cursor);
+                }
+                _ => {}
+            },
+            Some(_) => match curr_char_type {
+                CharType::ENGLISH => {
+                    self.english_end = Some(cursor);
+                }
+                _ => {
+                    let new_lexeme = Lexeme::new(
+                        (self.english_start.unwrap())..(self.english_end.unwrap() + 1),
+                        LexemeType::ENGLISH,
+                    );
+                    origin_lexemes.insert(new_lexeme);
+                    self.reset_english_state();
+                }
+            },
+        }
+
+        if let Some(index) = self.english_end {
+            if index == (char_count - 1) {
                 let new_lexeme = Lexeme::new(
-                    (self.english_start as usize)..(self.english_end + 1) as usize,
+                    (self.english_start.unwrap())..(self.english_end.unwrap() + 1),
                     LexemeType::ENGLISH,
                 );
                 origin_lexemes.insert(new_lexeme);
                 self.reset_english_state();
             }
-        }
-
-        if self.english_end == (char_count - 1) as i32 {
-            let new_lexeme = Lexeme::new(
-                (self.english_start as usize)..(self.english_end + 1) as usize,
-                LexemeType::ENGLISH,
-            );
-            origin_lexemes.insert(new_lexeme);
-            self.reset_english_state();
         }
     }
 
@@ -136,49 +149,55 @@ impl LetterSegmenter {
         curr_char_type: CharType,
         origin_lexemes: &mut OrderedLinkedList<Lexeme>,
     ) {
-        let char_count = utf8_len(input);
         let curr_char = input.chars().nth(cursor).unwrap();
-        if self.arabic_start == -1 {
-            if CharType::ARABIC == curr_char_type {
-                self.arabic_start = cursor as i32;
-                self.arabic_end = cursor as i32;
+        match self.arabic_start {
+            None => match curr_char_type {
+                CharType::ARABIC => {
+                    self.arabic_start = Some(cursor);
+                    self.arabic_end = Some(cursor);
+                }
+                _ => {}
+            },
+            Some(_) => {
+                if CharType::ARABIC == curr_char_type {
+                    self.arabic_end = Some(cursor);
+                } else if CharType::USELESS == curr_char_type && self.is_num_connector(curr_char) {
+                    // do nothing
+                } else {
+                    let new_lexeme = Lexeme::new(
+                        (self.arabic_start.unwrap())..(self.arabic_end.unwrap() + 1),
+                        LexemeType::ARABIC,
+                    );
+                    origin_lexemes.insert(new_lexeme);
+                    self.reset_arabic_state();
+                }
             }
-        } else {
-            if CharType::ARABIC == curr_char_type {
-                self.arabic_end = cursor as i32;
-            } else if CharType::USELESS == curr_char_type && self.is_num_connector(curr_char) {
-                // do nothing
-            } else {
+        }
+        let char_count = utf8_len(input);
+        if let Some(index) = self.arabic_end {
+            if index == (char_count - 1) {
                 let new_lexeme = Lexeme::new(
-                    (self.arabic_start as usize)..(self.arabic_end + 1) as usize,
+                    (self.arabic_start.unwrap())..(self.arabic_end.unwrap() + 1),
                     LexemeType::ARABIC,
                 );
                 origin_lexemes.insert(new_lexeme);
                 self.reset_arabic_state();
             }
         }
-        if self.arabic_end == (char_count - 1) as i32 {
-            let new_lexeme = Lexeme::new(
-                (self.arabic_start as usize)..(self.arabic_end + 1) as usize,
-                LexemeType::ARABIC,
-            );
-            origin_lexemes.insert(new_lexeme);
-            self.reset_arabic_state();
-        }
     }
     fn reset_mix_state(&mut self) {
-        self.start = -1;
-        self.end = -1;
+        self.start = None;
+        self.end = None;
     }
 
     fn reset_english_state(&mut self) {
-        self.english_start = -1;
-        self.english_end = -1;
+        self.english_start = None;
+        self.english_end = None;
     }
 
     fn reset_arabic_state(&mut self) {
-        self.arabic_start = -1;
-        self.arabic_end = -1;
+        self.arabic_start = None;
+        self.arabic_end = None;
     }
 
     fn is_letter_connector(&self, input: char) -> bool {
