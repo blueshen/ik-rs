@@ -92,14 +92,6 @@ impl LexemePath {
         self.path_begin
     }
 
-    // pub fn get_path_end(&self) -> i32 {
-    //     self.path_end
-    // }
-
-    // pub fn get_payload_length(&self) -> usize {
-    //     self.payload_length
-    // }
-
     pub fn get_path_length(&self) -> usize {
         (self.path_end - self.path_begin) as usize
     }
