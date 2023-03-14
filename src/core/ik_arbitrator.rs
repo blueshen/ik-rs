@@ -12,6 +12,9 @@ impl IKArbitrator {
         IKArbitrator {}
     }
 
+    fn add_path(&self, cross_path: &LexemePath, mode: TokenMode) -> bool {
+        cross_path.size() == 1 || !(mode == TokenMode::SEARCH)
+    }
     pub fn process(
         &mut self,
         org_lexemes: &mut OrderedLinkedList<Lexeme>,
@@ -21,7 +24,7 @@ impl IKArbitrator {
         let mut cross_path = LexemePath::new();
         for org_lexeme in org_lexemes.iter() {
             if !cross_path.add_cross_lexeme(org_lexeme) {
-                if cross_path.size() == 1 || !(mode == TokenMode::SEARCH) {
+                if self.add_path(&cross_path, mode) {
                     path_map.insert(cross_path.get_path_begin() as usize, cross_path);
                 } else {
                     let judge_result = self.judge(cross_path.get_head());
@@ -33,7 +36,7 @@ impl IKArbitrator {
                 cross_path.add_cross_lexeme(org_lexeme);
             }
         }
-        if cross_path.size() == 1 || !(mode == TokenMode::SEARCH) {
+        if self.add_path(&cross_path, mode) {
             path_map.insert(cross_path.get_path_begin() as usize, cross_path);
         } else {
             let judge_result = self.judge(cross_path.get_head());

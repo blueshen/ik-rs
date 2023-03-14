@@ -84,7 +84,6 @@ impl LetterSegmenter {
                 }
             }
         }
-
         if let Some(index) = self.end {
             if index == (char_count - 1) {
                 let new_lexeme = Lexeme::new(

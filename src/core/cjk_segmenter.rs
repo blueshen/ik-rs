@@ -18,17 +18,20 @@ impl Segmenter for CJKSegmenter {
         curr_char_type: CharType,
         origin_lexemes: &mut OrderedLinkedList<Lexeme>,
     ) {
-        let char_count = utf8_len(input);
-        if CharType::USELESS != curr_char_type {
-            let hit_options = GLOBAL_DICT.lock().unwrap().match_in_main_dict_with_offset(
-                input,
-                cursor,
-                char_count - cursor,
-            );
-            for hit in hit_options.iter() {
-                if hit.is_match() {
-                    let new_lexeme = Lexeme::new(hit.pos.clone(), LexemeType::CNWORD);
-                    origin_lexemes.insert(new_lexeme);
+        match curr_char_type {
+            CharType::USELESS => {}
+            _ => {
+                let char_count = utf8_len(input);
+                let hit_options = GLOBAL_DICT.lock().unwrap().match_in_main_dict_with_offset(
+                    input,
+                    cursor,
+                    char_count - cursor,
+                );
+                for hit in hit_options.iter() {
+                    if hit.is_match() {
+                        let new_lexeme = Lexeme::new(hit.pos.clone(), LexemeType::CNWORD);
+                        origin_lexemes.insert(new_lexeme);
+                    }
                 }
             }
         }
