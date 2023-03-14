@@ -1,4 +1,7 @@
 # ik-rs
+## 0.3.3
+fix some bug
+
 ## 0.3.2
 beta release
 ## 0.3.1
