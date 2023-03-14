@@ -209,8 +209,8 @@ impl PartialOrd<Self> for LexemePath {
 impl Eq for LexemePath {}
 impl PartialEq for LexemePath {
     fn eq(&self, other: &Self) -> bool {
-        return if self.path_begin == other.path_begin
-            && self.path_end == other.path_end
+        return if self.get_path_begin() == other.get_path_begin()
+            && self.get_path_end() == other.get_path_end()
             && self.payload_length == other.payload_length
             && self.lexeme_list.length() == other.lexeme_list.length()
         {

@@ -48,7 +48,6 @@ pub fn regularize(input: char) -> char {
         input_code += 32; // lowercase
     }
     let to_char = char::from_u32(input_code).unwrap();
-
     to_char
 }
 
