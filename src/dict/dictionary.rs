@@ -68,14 +68,14 @@ impl Dictionary {
 
     #[allow(dead_code)]
     pub fn add_words(&mut self, words: Vec<&str>) -> () {
-        for word in words {
+        for word in words.iter() {
             self.main_dict.insert(word);
         }
     }
 
     #[allow(dead_code)]
     pub fn disable_words(&mut self, words: Vec<&str>) -> () {
-        for word in words {
+        for word in words.iter() {
             self.main_dict.delete(word);
         }
     }
@@ -122,7 +122,7 @@ impl Dictionary {
     fn load_ext_dict(&mut self) -> bool {
         let ext_dict_files = self.cfg.get_ext_dictionaries();
         let mut ret = true;
-        for ext_dict_file in ext_dict_files {
+        for ext_dict_file in ext_dict_files.iter() {
             if !load(&mut self.main_dict, ext_dict_file.as_str()) {
                 ret = false;
             }
@@ -133,7 +133,7 @@ impl Dictionary {
     fn load_stop_word_dict(&mut self) -> bool {
         let ext_stop_word_dict_files = self.cfg.get_ext_stop_word_dictionaries();
         let mut ret = true;
-        for stop_file in ext_stop_word_dict_files {
+        for stop_file in ext_stop_word_dict_files.iter() {
             if !load(&mut self.stop_word_dict, stop_file.as_str()) {
                 ret = false;
             }

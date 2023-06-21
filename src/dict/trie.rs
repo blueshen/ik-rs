@@ -39,10 +39,10 @@ impl TrieNode {
     }
 
     pub fn is_root(&self) -> bool {
-        match self.value {
-            None => true,
-            Some(_) => false,
+        if let Some(_) = self.value {
+            return false;
         }
+        true
     }
 
     pub fn has_childs(&self) -> bool {
