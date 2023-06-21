@@ -9,37 +9,45 @@ pub enum CharType {
     OtherCjk,
 }
 
-// identify CharType Of char
-pub fn char_type_of(input: char) -> CharType {
-    if input >= '0' && input <= '9' {
-        return CharType::ARABIC;
-    } else if (input >= 'a' && input <= 'z') || (input >= 'A' && input <= 'Z') {
-        return CharType::ENGLISH;
-    } else {
-        if let Some(ub) = unicode_blocks::find_unicode_block(input) {
-            if ub == unicode_blocks::CJK_UNIFIED_IDEOGRAPHS
-                || ub == unicode_blocks::CJK_COMPATIBILITY_IDEOGRAPHS
-                || ub == unicode_blocks::CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A
-            {
-                return CharType::CHINESE;
-            } else if ub == unicode_blocks::HALFWIDTH_AND_FULLWIDTH_FORMS
-                || ub == unicode_blocks::HANGUL_SYLLABLES
-                || ub == unicode_blocks::HANGUL_JAMO
-                || ub == unicode_blocks::HANGUL_COMPATIBILITY_JAMO
-                || ub == unicode_blocks::HIRAGANA
-                || ub == unicode_blocks::KATAKANA
-                || ub == unicode_blocks::KATAKANA_PHONETIC_EXTENSIONS
-            {
-                return CharType::OtherCjk;
+impl TryFrom<char> for CharType {
+    type Error = ();
+
+    fn try_from(input: char) -> Result<Self, Self::Error> {
+        if input >= '0' && input <= '9' {
+            return Ok(CharType::ARABIC);
+        } else if (input >= 'a' && input <= 'z') || (input >= 'A' && input <= 'Z') {
+            return Ok(CharType::ENGLISH);
+        } else {
+            if let Some(ub) = unicode_blocks::find_unicode_block(input) {
+                if ub == unicode_blocks::CJK_UNIFIED_IDEOGRAPHS
+                    || ub == unicode_blocks::CJK_COMPATIBILITY_IDEOGRAPHS
+                    || ub == unicode_blocks::CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A
+                {
+                    return Ok(CharType::CHINESE);
+                } else if ub == unicode_blocks::HALFWIDTH_AND_FULLWIDTH_FORMS
+                    || ub == unicode_blocks::HANGUL_SYLLABLES
+                    || ub == unicode_blocks::HANGUL_JAMO
+                    || ub == unicode_blocks::HANGUL_COMPATIBILITY_JAMO
+                    || ub == unicode_blocks::HIRAGANA
+                    || ub == unicode_blocks::KATAKANA
+                    || ub == unicode_blocks::KATAKANA_PHONETIC_EXTENSIONS
+                {
+                    return Ok(CharType::OtherCjk);
+                }
             }
         }
+        return Ok(CharType::USELESS);
     }
-    return CharType::USELESS;
+}
+
+// identify CharType Of char
+pub fn char_type_of(input: char) -> CharType {
+    CharType::try_from(input).unwrap()
 }
 
 // full char -> half char && lowercase
 pub fn regularize(input: char) -> char {
-    let mut input_code = input as u32;
+    let mut input_code = u32::from(input);
     if input_code == 12288 {
         input_code -= 12256; // whitespace
     } else if input_code >= 65281 && input_code <= 65374 {

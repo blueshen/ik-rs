@@ -60,7 +60,7 @@ impl Configuration for DefaultConfig {
 
     fn get_ext_dictionaries(&self) -> Vec<String> {
         let mut dicts = Vec::new();
-        for dict in &self.ext_dicts {
+        for dict in self.ext_dicts.iter() {
             let mut root_path = root_path();
             root_path.push_str(dict);
             dicts.push(root_path);
@@ -71,9 +71,9 @@ impl Configuration for DefaultConfig {
     fn get_ext_stop_word_dictionaries(&self) -> Vec<String> {
         let mut dicts = Vec::new();
         let mut stop_word_full = root_path();
-        stop_word_full.push_str(&self.stop_word_dict);
+        stop_word_full.push_str(self.stop_word_dict.as_str());
         dicts.push(stop_word_full);
-        for dict in &self.ext_stop_word_dicts {
+        for dict in self.ext_stop_word_dicts.iter() {
             let mut root_path = root_path();
             root_path.push_str(dict);
             dicts.push(root_path);

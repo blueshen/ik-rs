@@ -172,7 +172,7 @@ mod test {
     fn test_index_segment() {
         let mut ik = IKSegmenter::new();
         let texts = _get_input_texts();
-        for text in texts {
+        for text in texts.iter() {
             let tokens = ik.tokenize(text, TokenMode::INDEX);
             for token in tokens.iter() {
                 log::info!("{:?}", token);
