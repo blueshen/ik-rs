@@ -22,10 +22,12 @@ impl Error for IndexOutOfRangeError {
     }
 }
 
+pub type Link<T> = NonNull<Node<T>>;
+
 pub struct Node<T: PartialOrd> {
     pub(crate) val: T,
-    pub next: Option<NonNull<Node<T>>>,
-    pub prev: Option<NonNull<Node<T>>>,
+    pub next: Option<Link<T>>,
+    pub prev: Option<Link<T>>,
 }
 
 impl<T: PartialOrd> Node<T> {
@@ -48,8 +50,8 @@ impl<T: PartialOrd> Node<T> {
 
 pub struct OrderedLinkedList<T: PartialOrd> {
     length: usize,
-    head: Option<NonNull<Node<T>>>,
-    tail: Option<NonNull<Node<T>>>,
+    head: Option<Link<T>>,
+    tail: Option<Link<T>>,
     _marker: PhantomData<Box<Node<T>>>,
 }
 
@@ -154,11 +156,11 @@ impl<T: PartialOrd> OrderedLinkedList<T> {
         unsafe { self.tail.as_mut().map(|node| &mut node.as_mut().val) }
     }
 
-    pub fn head_node(&self) -> Option<&NonNull<Node<T>>> {
+    pub fn head_node(&self) -> Option<&Link<T>> {
         self.head.as_ref()
     }
 
-    pub fn tail_node(&self) -> Option<&NonNull<Node<T>>> {
+    pub fn tail_node(&self) -> Option<&Link<T>> {
         self.tail.as_ref()
     }
 
@@ -352,7 +354,7 @@ impl<T: PartialOrd> OrderedLinkedList<T> {
         }
     }
 
-    fn _get_by_idx_mut(&self, idx: usize) -> Result<Option<NonNull<Node<T>>>, Box<dyn Error>> {
+    fn _get_by_idx_mut(&self, idx: usize) -> Result<Option<Link<T>>, Box<dyn Error>> {
         let len = self.length;
 
         if idx >= len {
@@ -392,7 +394,7 @@ impl<T: PartialOrd> OrderedLinkedList<T> {
     }
 
     #[inline]
-    fn unlink_node(&mut self, mut node: NonNull<Node<T>>) {
+    fn unlink_node(&mut self, mut node: Link<T>) {
         let node = unsafe { node.as_mut() }; // this one is ours now, we can create an &mut.
 
         // Not creating new mutable (unique!) references overlapping `element`.
@@ -484,8 +486,8 @@ impl<T: PartialOrd> DoubleEndedIterator for IntoIter<T> {
 }
 
 pub struct Iter<'a, T: 'a + PartialOrd> {
-    head: Option<NonNull<Node<T>>>,
-    tail: Option<NonNull<Node<T>>>,
+    head: Option<Link<T>>,
+    tail: Option<Link<T>>,
     len: usize,
     _marker: PhantomData<&'a Node<T>>,
 }
@@ -539,8 +541,8 @@ impl<'a, T: PartialOrd> DoubleEndedIterator for Iter<'a, T> {
 }
 
 pub struct IterMut<'a, T: 'a + PartialOrd> {
-    head: Option<NonNull<Node<T>>>,
-    tail: Option<NonNull<Node<T>>>,
+    head: Option<Link<T>>,
+    tail: Option<Link<T>>,
     len: usize,
     _marker: PhantomData<&'a mut Node<T>>,
 }
@@ -613,7 +615,7 @@ mod test {
         list.traverse();
 
         assert_eq!(list.pop_front(), Some(-1));
-        assert_eq!(list.pop_back(), Some(i32::MAX));
+        assert_eq!(list.pop_back(), Some(i32::max_value()));
 
         assert_eq!(list.length, 3);
         list.traverse();
@@ -693,7 +695,7 @@ mod test {
         list.push_front(123);
         list.push_back(789);
         list.push_front(-1);
-        list.push_back(i32::MAX);
+        list.push_back(i32::max_value());
         list
     }
 

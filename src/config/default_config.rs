@@ -1,7 +1,6 @@
 use crate::config::configuration::Configuration;
 use serde;
 use serde::{Deserialize, Serialize};
-#[warn(unused_imports)]
 use serde_yaml;
 use std::fs::File;
 use std::io::{BufReader, Read};

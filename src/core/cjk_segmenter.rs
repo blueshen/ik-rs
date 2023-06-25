@@ -7,7 +7,7 @@ use crate::dict::dictionary::GLOBAL_DICT;
 
 const SEGMENTER_NAME: &str = "CJK_SEGMENTER";
 
-#[derive(Debug)]
+#[derive(Default, Debug)]
 pub struct CJKSegmenter {}
 
 impl Segmenter for CJKSegmenter {
@@ -39,11 +39,5 @@ impl Segmenter for CJKSegmenter {
 
     fn name(&self) -> &str {
         return SEGMENTER_NAME;
-    }
-}
-
-impl CJKSegmenter {
-    pub fn new() -> Self {
-        CJKSegmenter {}
     }
 }

@@ -1,20 +1,12 @@
 use crate::core::ik_segmenter::TokenMode;
 use crate::core::lexeme::Lexeme;
 use crate::core::lexeme_path::LexemePath;
-use crate::core::ordered_linked_list::{Node, OrderedLinkedList};
+use crate::core::ordered_linked_list::{Link, OrderedLinkedList};
 use std::collections::{BTreeSet, HashMap};
-use std::ptr::NonNull;
 
+#[derive(Default)]
 pub struct IKArbitrator {}
-
 impl IKArbitrator {
-    pub fn new() -> Self {
-        IKArbitrator {}
-    }
-
-    fn add_path(&self, cross_path: &LexemePath, mode: TokenMode) -> bool {
-        cross_path.size() == 1 || !(mode == TokenMode::SEARCH)
-    }
     pub fn process(
         &mut self,
         org_lexemes: &mut OrderedLinkedList<Lexeme>,
@@ -24,7 +16,7 @@ impl IKArbitrator {
         let mut cross_path = LexemePath::new();
         for org_lexeme in org_lexemes.iter() {
             if !cross_path.add_cross_lexeme(org_lexeme) {
-                if self.add_path(&cross_path, mode) {
+                if self.need_add_path(&cross_path, mode) {
                     path_map.insert(cross_path.get_path_begin() as usize, cross_path);
                 } else {
                     let judge_result = self.judge(cross_path.get_head());
@@ -36,7 +28,7 @@ impl IKArbitrator {
                 cross_path.add_cross_lexeme(org_lexeme);
             }
         }
-        if self.add_path(&cross_path, mode) {
+        if self.need_add_path(&cross_path, mode) {
             path_map.insert(cross_path.get_path_begin() as usize, cross_path);
         } else {
             let judge_result = self.judge(cross_path.get_head());
@@ -47,7 +39,7 @@ impl IKArbitrator {
         path_map
     }
 
-    fn judge(&mut self, cur_node: Option<&NonNull<Node<Lexeme>>>) -> Option<LexemePath> {
+    fn judge(&mut self, cur_node: Option<&Link<Lexeme>>) -> Option<LexemePath> {
         let mut path_options = BTreeSet::new();
         let mut option = LexemePath::new();
         let mut lexeme_stack = self.forward_path(cur_node, &mut option);
@@ -65,15 +57,19 @@ impl IKArbitrator {
                 break;
             }
         }
-        return best;
+        best
+    }
+
+    fn need_add_path(&self, cross_path: &LexemePath, mode: TokenMode) -> bool {
+        cross_path.size() == 1 || !(mode == TokenMode::SEARCH)
     }
 
     fn forward_path<'a>(
         &'a self,
-        cur_node: Option<&'a NonNull<Node<Lexeme>>>,
+        cur_node: Option<&'a Link<Lexeme>>,
         option: &mut LexemePath,
-    ) -> Vec<Option<&NonNull<Node<Lexeme>>>> {
-        let mut conflict_stack: Vec<Option<&NonNull<Node<Lexeme>>>> = Vec::new();
+    ) -> Vec<Option<&Link<Lexeme>>> {
+        let mut conflict_stack: Vec<Option<&Link<Lexeme>>> = Vec::new();
         let mut cur = cur_node;
         while let Some(node) = cur {
             let ref_node = unsafe { node.as_ref() }; // safety
@@ -83,10 +79,10 @@ impl IKArbitrator {
             }
             cur = ref_node.next.as_ref();
         }
-        return conflict_stack;
+        conflict_stack
     }
 
-    fn back_path(&self, l: Option<&NonNull<Node<Lexeme>>>, option: &mut LexemePath) {
+    fn back_path(&self, l: Option<&Link<Lexeme>>, option: &mut LexemePath) {
         if let Some(node) = l {
             let ref_node = unsafe { node.as_ref() }; // safety
             let lexeme = ref_node.ref_val();

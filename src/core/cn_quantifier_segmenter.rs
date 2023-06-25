@@ -31,8 +31,8 @@ impl Segmenter for CnQuantifierSegmenter {
     }
 }
 
-impl CnQuantifierSegmenter {
-    pub fn new() -> Self {
+impl Default for CnQuantifierSegmenter {
+    fn default() -> Self {
         CnQuantifierSegmenter {
             start: None,
             end: None,
@@ -43,7 +43,9 @@ impl CnQuantifierSegmenter {
             ]),
         }
     }
+}
 
+impl CnQuantifierSegmenter {
     fn process_cnumber(
         &mut self,
         input: &str,
@@ -141,17 +143,17 @@ impl CnQuantifierSegmenter {
     }
 
     fn initial_state(&self) -> bool {
-        match self.start {
+        return match self.start {
             None => match self.end {
                 None => {
-                    return true;
+                    true
                 }
                 Some(_) => {
-                    return false;
+                    false
                 }
             },
             Some(_) => {
-                return false;
+                false
             }
         }
     }

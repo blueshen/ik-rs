@@ -1,8 +1,7 @@
 use crate::core::lexeme::Lexeme;
-use crate::core::ordered_linked_list::{Node, OrderedLinkedList};
+use crate::core::ordered_linked_list::{Link, OrderedLinkedList};
 use std::cmp::Ordering;
 use std::fmt::{Display, Formatter};
-use std::ptr::NonNull;
 
 pub struct LexemePath {
     pub path_begin: i32,
@@ -128,7 +127,7 @@ impl LexemePath {
         self.lexeme_list.pop_front()
     }
 
-    pub fn get_head(&self) -> Option<&NonNull<Node<Lexeme>>> {
+    pub fn get_head(&self) -> Option<&Link<Lexeme>> {
         self.lexeme_list.head_node()
     }
 }
@@ -214,9 +213,7 @@ impl PartialEq for LexemePath {
             && self.payload_length == other.payload_length
             && self.lexeme_list.length() == other.lexeme_list.length()
         {
-            for _ in 0..self.lexeme_list.length() {
-                let a = self.lexeme_list.iter().next().unwrap();
-                let b = other.lexeme_list.iter().next().unwrap();
+            for (a, b) in self.lexeme_list.iter().zip(other.lexeme_list.iter()) {
                 if !a.eq(b) {
                     return false;
                 }

@@ -10,6 +10,7 @@ const LETTER_CONNECTOR: [char; 7] = ['#', '&', '+', '-', '.', '@', '_'];
 
 const NUM_CONNECTOR: [char; 2] = [',', '.'];
 
+#[derive(Debug)]
 pub struct LetterSegmenter {
     start: Option<usize>,
     end: Option<usize>,
@@ -38,8 +39,8 @@ impl Segmenter for LetterSegmenter {
     }
 }
 
-impl LetterSegmenter {
-    pub fn new() -> Self {
+impl Default for LetterSegmenter {
+    fn default() -> Self {
         LetterSegmenter {
             start: None,
             end: None,
@@ -49,7 +50,8 @@ impl LetterSegmenter {
             arabic_end: None,
         }
     }
-
+}
+impl LetterSegmenter {
     /// mix letter
     /// windows2000 | zhiyi.shen@gmail.com
     fn process_mix_letter(

@@ -4,7 +4,7 @@ const UNMATCH: u32 = 0x00000000;
 const MATCH: u32 = 0x00000001;
 const PREFIX: u32 = 0x00000010;
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Clone)]
 pub struct Hit {
     pub hit_state: u32,
     pub pos: Range<usize>,

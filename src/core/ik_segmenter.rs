@@ -29,11 +29,11 @@ unsafe impl Sync for IKSegmenter {}
 impl IKSegmenter {
     pub fn new() -> Self {
         let ik = IKSegmenter {
-            arbitrator: IKArbitrator::new(),
+            arbitrator: IKArbitrator::default(),
             segmenters: vec![
-                Box::new(LetterSegmenter::new()),
-                Box::new(CnQuantifierSegmenter::new()),
-                Box::new(CJKSegmenter::new()),
+                Box::new(LetterSegmenter::default()),
+                Box::new(CnQuantifierSegmenter::default()),
+                Box::new(CJKSegmenter::default()),
             ],
         };
         ik
