@@ -9,21 +9,19 @@ pub enum CharType {
     OtherCjk,
 }
 
-impl TryFrom<char> for CharType {
-    type Error = ();
-
-    fn try_from(input: char) -> Result<Self, Self::Error> {
+impl From<char> for CharType {
+    fn from(input: char) -> Self {
         if input >= '0' && input <= '9' {
-            return Ok(CharType::ARABIC);
+            return CharType::ARABIC;
         } else if (input >= 'a' && input <= 'z') || (input >= 'A' && input <= 'Z') {
-            return Ok(CharType::ENGLISH);
+            return CharType::ENGLISH;
         } else {
             if let Some(ub) = unicode_blocks::find_unicode_block(input) {
                 if ub == unicode_blocks::CJK_UNIFIED_IDEOGRAPHS
                     || ub == unicode_blocks::CJK_COMPATIBILITY_IDEOGRAPHS
                     || ub == unicode_blocks::CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A
                 {
-                    return Ok(CharType::CHINESE);
+                    return CharType::CHINESE;
                 } else if ub == unicode_blocks::HALFWIDTH_AND_FULLWIDTH_FORMS
                     || ub == unicode_blocks::HANGUL_SYLLABLES
                     || ub == unicode_blocks::HANGUL_JAMO
@@ -32,18 +30,18 @@ impl TryFrom<char> for CharType {
                     || ub == unicode_blocks::KATAKANA
                     || ub == unicode_blocks::KATAKANA_PHONETIC_EXTENSIONS
                 {
-                    return Ok(CharType::OtherCjk);
+                    return CharType::OtherCjk;
                 }
             }
         }
-        return Ok(CharType::USELESS);
+        return CharType::USELESS;
     }
 }
 
 // identify CharType Of char
-pub fn char_type_of(input: char) -> CharType {
-    CharType::try_from(input).unwrap()
-}
+// pub fn char_type_of(input: char) -> CharType {
+//     CharType::from(input)
+// }
 
 // full char -> half char && lowercase
 pub fn regularize(input: char) -> char {

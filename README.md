@@ -55,12 +55,6 @@ mod test {
 }
 
 ```
-
-# Usage for Tantivy
-
-use [tantivy-ik](https://github.com/blueshen/tantivy-ik) project
-
-
 # BenchMark
 
 High performance
@@ -70,6 +64,11 @@ ik_tokenize_benchmark   time:   [19.366 µs 19.572 µs 19.850 µs]
                         change: [-1.5364% -0.4029% +0.7357%] (p = 0.51 > 0.05)
 
 ```
+# Usage for Tantivy
+
+use [tantivy-ik](https://github.com/blueshen/tantivy-ik) project
+
+
 ---
 Welcome to rust developer and search engine developer join us, and maintain this project together!
 

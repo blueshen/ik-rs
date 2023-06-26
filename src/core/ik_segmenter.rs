@@ -1,4 +1,3 @@
-use crate::core::char_util::char_type_of;
 use crate::core::char_util::regularize_str;
 use crate::core::char_util::CharType;
 use crate::core::cjk_segmenter::CJKSegmenter;
@@ -44,7 +43,7 @@ impl IKSegmenter {
         let input = regular_str.as_str();
         let mut origin_lexemes = OrderedLinkedList::<Lexeme>::new();
         for (cursor, curr_char) in input.chars().enumerate() {
-            let curr_char_type = char_type_of(curr_char);
+            let curr_char_type = CharType::from(curr_char);
             for segmenter in self.segmenters.iter_mut() {
                 segmenter.analyze(input, cursor, curr_char_type, &mut origin_lexemes);
             }
@@ -61,8 +60,8 @@ impl IKSegmenter {
             }
             if !GLOBAL_DICT.lock().unwrap().is_stop_word(
                 input,
-                result_value.get_begin_position(),
-                result_value.get_length(),
+                result_value.begin_position(),
+                result_value.length(),
             ) {
                 result_value.parse_lexeme_text(input);
                 final_results.push(result_value.clone())
@@ -82,7 +81,7 @@ impl IKSegmenter {
         let char_count = input.chars().count();
         while index < char_count {
             let curr_char = input.chars().nth(index).unwrap();
-            let cur_char_type = char_type_of(curr_char);
+            let cur_char_type = CharType::from(curr_char);
             if CharType::USELESS == cur_char_type {
                 index += 1;
                 continue;
@@ -92,12 +91,12 @@ impl IKSegmenter {
                 let mut cur_lexeme = p.poll_first();
                 while let Some(ref lexeme) = cur_lexeme {
                     results.push_back(lexeme.clone());
-                    index = lexeme.get_end_position();
+                    index = lexeme.end_position();
                     cur_lexeme = p.poll_first();
                     if let Some(ref lexeme) = cur_lexeme {
-                        while index < lexeme.get_begin_position() {
+                        while index < lexeme.begin_position() {
                             let curr_char = input.chars().nth(index).unwrap();
-                            let cur_char_type = char_type_of(curr_char);
+                            let cur_char_type = CharType::from(curr_char);
                             self.add_single_lexeme(&mut results, cur_char_type, index);
                             index += 1;
                         }

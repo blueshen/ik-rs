@@ -17,11 +17,11 @@ impl IKArbitrator {
         for org_lexeme in org_lexemes.iter() {
             if !cross_path.add_cross_lexeme(org_lexeme) {
                 if self.need_add_path(&cross_path, mode) {
-                    path_map.insert(cross_path.get_path_begin() as usize, cross_path);
+                    path_map.insert(cross_path.path_begin() as usize, cross_path);
                 } else {
-                    let judge_result = self.judge(cross_path.get_head());
+                    let judge_result = self.judge(cross_path.head_node());
                     if let Some(path) = judge_result {
-                        path_map.insert(path.get_path_begin() as usize, path);
+                        path_map.insert(path.path_begin() as usize, path);
                     }
                 }
                 cross_path = LexemePath::new();
@@ -29,11 +29,11 @@ impl IKArbitrator {
             }
         }
         if self.need_add_path(&cross_path, mode) {
-            path_map.insert(cross_path.get_path_begin() as usize, cross_path);
+            path_map.insert(cross_path.path_begin() as usize, cross_path);
         } else {
-            let judge_result = self.judge(cross_path.get_head());
+            let judge_result = self.judge(cross_path.head_node());
             if let Some(path) = judge_result {
-                path_map.insert(path.get_path_begin() as usize, path);
+                path_map.insert(path.path_begin() as usize, path);
             }
         }
         path_map

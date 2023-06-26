@@ -108,7 +108,7 @@ impl Dictionary {
                 return true;
             }
         }
-        return false;
+        false
     }
 
     fn load_main_dict(&mut self) -> bool {

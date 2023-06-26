@@ -22,12 +22,12 @@ impl Segmenter for CJKSegmenter {
             CharType::USELESS => {}
             _ => {
                 let char_count = utf8_len(input);
-                let hit_options = GLOBAL_DICT.lock().unwrap().match_in_main_dict_with_offset(
+                let hits = GLOBAL_DICT.lock().unwrap().match_in_main_dict_with_offset(
                     input,
                     cursor,
                     char_count - cursor,
                 );
-                for hit in hit_options.iter() {
+                for hit in hits.iter() {
                     if hit.is_match() {
                         let new_lexeme = Lexeme::new(hit.pos.clone(), LexemeType::CNWORD);
                         origin_lexemes.insert(new_lexeme);

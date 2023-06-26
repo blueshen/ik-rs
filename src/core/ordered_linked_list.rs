@@ -75,7 +75,7 @@ impl<T: PartialOrd> OrderedLinkedList<T> {
         self.length
     }
 
-    pub fn is_empty(&self) -> bool {
+    pub fn empty(&self) -> bool {
         self.length == 0
     }
 

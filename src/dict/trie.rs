@@ -26,7 +26,7 @@ impl TrieNode {
         TrieNode {
             value: Some(c),
             final_state,
-            child_nodes: HashMap::new(),
+            child_nodes: HashMap::with_capacity(32),
         }
     }
 
@@ -34,7 +34,7 @@ impl TrieNode {
         TrieNode {
             value: None,
             final_state: false,
-            child_nodes: HashMap::new(),
+            child_nodes: HashMap::with_capacity(32),
         }
     }
 
@@ -122,8 +122,7 @@ impl TrieNode {
                     break;
                 }
                 if current_node.final_state {
-                    let mut hit = Hit::new();
-                    hit.pos = offset..end + 1;
+                    let mut hit = Hit::new_with_pos(offset..end + 1);
                     hit.set_match();
                     if current_node.has_childs() {
                         hit.set_prefix();
@@ -134,8 +133,7 @@ impl TrieNode {
                 end = counter;
             }
             if !current_node.is_root() {
-                let mut hit = Hit::new();
-                hit.pos = offset..end + 1;
+                let mut hit = Hit::new_with_pos(offset..end + 1);
                 if current_node.final_state {
                     hit.set_match();
                 }

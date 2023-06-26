@@ -125,7 +125,7 @@ impl CnQuantifierSegmenter {
         if self.start.is_some() && self.end.is_some() {
             return true;
         }
-        if origin_lexemes.is_empty() {
+        if origin_lexemes.empty() {
             return false;
         } else {
             let last = origin_lexemes.peek_back();
@@ -133,7 +133,7 @@ impl CnQuantifierSegmenter {
                 if lexeme.lexeme_type == LexemeType::ARABIC
                     || lexeme.lexeme_type == LexemeType::CNUM
                 {
-                    if lexeme.get_end_position() == cursor {
+                    if lexeme.end_position() == cursor {
                         return true;
                     }
                 }
@@ -143,19 +143,7 @@ impl CnQuantifierSegmenter {
     }
 
     fn initial_state(&self) -> bool {
-        return match self.start {
-            None => match self.end {
-                None => {
-                    true
-                }
-                Some(_) => {
-                    false
-                }
-            },
-            Some(_) => {
-                false
-            }
-        }
+        self.start.is_none() && self.end.is_none()
     }
 
     fn reset_state(&mut self) {

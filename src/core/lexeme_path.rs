@@ -21,18 +21,18 @@ impl LexemePath {
     }
 
     pub fn add_cross_lexeme(&mut self, lexeme: &Lexeme) -> bool {
-        return if self.lexeme_list.is_empty() {
+        return if self.lexeme_list.empty() {
             self.lexeme_list.insert(lexeme.clone());
-            self.path_begin = lexeme.get_begin_position() as i32;
-            self.path_end = lexeme.get_end_position() as i32;
-            self.payload_length += lexeme.get_length();
+            self.path_begin = lexeme.begin_position() as i32;
+            self.path_end = lexeme.end_position() as i32;
+            self.payload_length += lexeme.length();
             true
         } else if self.check_cross(&lexeme) {
             self.lexeme_list.insert(lexeme.clone());
-            if lexeme.get_end_position() > self.get_path_end() as usize {
-                self.path_end = lexeme.get_end_position() as i32;
+            if lexeme.end_position() > self.path_end() as usize {
+                self.path_end = lexeme.end_position() as i32;
             }
-            self.payload_length = self.get_path_length();
+            self.payload_length = self.path_length();
             true
         } else {
             false
@@ -40,24 +40,24 @@ impl LexemePath {
     }
 
     pub fn add_not_cross_lexeme(&mut self, lexeme: &Lexeme) -> bool {
-        return if self.lexeme_list.is_empty() {
+        return if self.lexeme_list.empty() {
             self.lexeme_list.insert(lexeme.clone());
-            self.path_begin = lexeme.get_begin_position() as i32;
-            self.path_end = lexeme.get_end_position() as i32;
-            self.payload_length += lexeme.get_length();
+            self.path_begin = lexeme.begin_position() as i32;
+            self.path_end = lexeme.end_position() as i32;
+            self.payload_length += lexeme.length();
             true
         } else if self.check_cross(lexeme) {
             false
         } else {
             self.lexeme_list.insert(lexeme.clone());
-            self.payload_length += lexeme.get_length();
+            self.payload_length += lexeme.length();
             let head = self.lexeme_list.peek_front(); //  peekFirst();
             if let Some(h) = head {
-                self.path_begin = h.get_begin_position() as i32;
+                self.path_begin = h.begin_position() as i32;
             }
             let tail = self.lexeme_list.peek_back(); //  peekLast();
             if let Some(t) = tail {
-                self.path_end = t.get_end_position() as i32;
+                self.path_end = t.end_position() as i32;
             }
             true
         };
@@ -65,56 +65,59 @@ impl LexemePath {
 
     pub fn remove_tail(&mut self) -> Option<Lexeme> {
         let tail = self.lexeme_list.pop_back();
-        if self.lexeme_list.is_empty() {
+        if self.lexeme_list.empty() {
             self.path_begin = -1;
             self.path_end = -1;
             self.payload_length = 0usize;
         } else {
-            self.payload_length -= tail.as_ref().unwrap().get_length();
+            self.payload_length -= tail.as_ref().unwrap().length();
             let new_tail = self.lexeme_list.peek_back();
             if let Some(new) = new_tail {
-                self.path_end = new.get_end_position() as i32;
+                self.path_end = new.end_position() as i32;
             }
         }
         return tail;
     }
 
     pub fn check_cross(&self, lexeme: &Lexeme) -> bool {
-        let l_begin = lexeme.get_begin_position();
-        let l_length = lexeme.get_length();
-        let cross = (l_begin >= self.get_path_begin() as usize
-            && l_begin < self.get_path_end() as usize)
-            || (self.get_path_begin() as usize >= l_begin
-                && (self.get_path_begin() as usize) < (l_begin + l_length));
+        let l_begin = lexeme.begin_position();
+        let l_length = lexeme.length();
+        let cross = (l_begin >= self.path_begin() as usize && l_begin < self.path_end() as usize)
+            || (self.path_begin() as usize >= l_begin
+                && (self.path_begin() as usize) < (l_begin + l_length));
         cross
     }
 
-    pub fn get_path_begin(&self) -> i32 {
+    pub fn path_begin(&self) -> i32 {
         self.path_begin
     }
 
-    pub fn get_path_end(&self) -> i32 {
+    pub fn path_end(&self) -> i32 {
         self.path_end
     }
 
-    pub fn get_path_length(&self) -> usize {
+    pub fn path_length(&self) -> usize {
         (self.path_end - self.path_begin) as usize
     }
 
-    pub fn get_xweight(&self) -> usize {
+    pub fn payload_length(&self) -> usize {
+        self.payload_length
+    }
+
+    pub fn x_weight(&self) -> usize {
         let mut product = 1;
         for lexeme in self.lexeme_list.iter() {
-            product *= lexeme.get_length();
+            product *= lexeme.length();
         }
         return product;
     }
 
-    pub fn get_pweight(&self) -> usize {
+    pub fn p_weight(&self) -> usize {
         let mut p_weight = 0;
         let mut p = 0;
         for lexeme in self.lexeme_list.iter() {
             p += 1;
-            p_weight += p * lexeme.get_length();
+            p_weight += p * lexeme.length();
         }
         return p_weight;
     }
@@ -127,7 +130,7 @@ impl LexemePath {
         self.lexeme_list.pop_front()
     }
 
-    pub fn get_head(&self) -> Option<&Link<Lexeme>> {
+    pub fn head_node(&self) -> Option<&Link<Lexeme>> {
         self.lexeme_list.head_node()
     }
 }
@@ -137,9 +140,9 @@ impl Display for LexemePath {
         write!(
             f,
             "path_begin:{}, path_end:{}, payload_length:{}, lexeme_list:{}",
-            self.get_path_begin(),
-            self.get_path_end(),
-            self.payload_length,
+            self.path_begin(),
+            self.path_end(),
+            self.payload_length(),
             self.lexeme_list
         )
     }
@@ -166,9 +169,9 @@ impl Ord for LexemePath {
 
 impl PartialOrd<Self> for LexemePath {
     fn partial_cmp(&self, o: &Self) -> Option<Ordering> {
-        if self.payload_length > o.payload_length {
+        if self.payload_length() > o.payload_length() {
             return Some(Ordering::Less);
-        } else if self.payload_length < o.payload_length {
+        } else if self.payload_length() < o.payload_length() {
             return Some(Ordering::Greater);
         } else {
             if self.size() < o.size() {
@@ -176,24 +179,24 @@ impl PartialOrd<Self> for LexemePath {
             } else if self.size() > o.size() {
                 return Some(Ordering::Greater);
             } else {
-                if self.get_path_length() > o.get_path_length() {
+                if self.path_length() > o.path_length() {
                     return Some(Ordering::Less);
-                } else if self.get_path_length() < o.get_path_length() {
+                } else if self.path_length() < o.path_length() {
                     return Some(Ordering::Greater);
                 } else {
-                    if self.get_path_end() > o.get_path_end() {
+                    if self.path_end() > o.path_end() {
                         return Some(Ordering::Less);
-                    } else if self.get_path_end() < o.get_path_end() {
+                    } else if self.path_end() < o.path_end() {
                         return Some(Ordering::Greater);
                     } else {
-                        if self.get_xweight() > o.get_xweight() {
+                        if self.x_weight() > o.x_weight() {
                             return Some(Ordering::Less);
-                        } else if self.get_xweight() < o.get_xweight() {
+                        } else if self.x_weight() < o.x_weight() {
                             return Some(Ordering::Greater);
                         } else {
-                            if self.get_pweight() > o.get_pweight() {
+                            if self.p_weight() > o.p_weight() {
                                 return Some(Ordering::Less);
-                            } else if self.get_pweight() < o.get_pweight() {
+                            } else if self.p_weight() < o.p_weight() {
                                 return Some(Ordering::Greater);
                             }
                         }
@@ -208,8 +211,8 @@ impl PartialOrd<Self> for LexemePath {
 impl Eq for LexemePath {}
 impl PartialEq for LexemePath {
     fn eq(&self, other: &Self) -> bool {
-        return if self.get_path_begin() == other.get_path_begin()
-            && self.get_path_end() == other.get_path_end()
+        return if self.path_begin() == other.path_begin()
+            && self.path_end() == other.path_end()
             && self.payload_length == other.payload_length
             && self.lexeme_list.length() == other.lexeme_list.length()
         {

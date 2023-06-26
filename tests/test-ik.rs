@@ -85,7 +85,7 @@ mod test {
         let mut token_texts = Vec::new();
         for token in tokens.iter() {
             // println!("{:?}", token);
-            token_texts.push(token.get_lexeme_text());
+            token_texts.push(token.lexeme_text());
         }
         assert_eq!(expect, token_texts);
     }
@@ -96,7 +96,7 @@ mod test {
         let mut token_texts = Vec::new();
         for token in tokens.iter() {
             // println!("{:?}", token);
-            token_texts.push(token.get_lexeme_text());
+            token_texts.push(token.lexeme_text());
         }
         assert_eq!(expect, token_texts);
     }
