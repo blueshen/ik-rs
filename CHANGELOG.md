@@ -1,4 +1,7 @@
 # ik-rs
+## 0.3.5
+better performance and more rusty
+
 ## 0.3.3
 fix some bug
 
@@ -11,7 +14,7 @@ safety & simplify code
 more stable && performance++
 
 ## 0.2.0
-Separate tantivy-ik from the this project
+Separate tantivy-ik from this project
 
 ## 0.1.2
 bug fix + code
