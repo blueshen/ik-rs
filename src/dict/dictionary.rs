@@ -6,8 +6,6 @@ use once_cell;
 use once_cell::sync::Lazy;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
-use std::marker::Sync;
-use std::rc::Rc;
 use std::sync::Mutex;
 
 pub static GLOBAL_DICT: Lazy<Mutex<Dictionary>> = Lazy::new(|| {
@@ -46,7 +44,7 @@ pub struct Dictionary {
     main_dict: Trie,
     stop_word_dict: Trie,
     quantifier_dict: Trie,
-    cfg: Rc<dyn Configuration>,
+    cfg: Box<dyn Configuration>,
 }
 
 unsafe impl Sync for Dictionary {}
@@ -58,7 +56,7 @@ impl Dictionary {
             main_dict: Trie::new(),
             stop_word_dict: Trie::new(),
             quantifier_dict: Trie::new(),
-            cfg: Rc::new(DefaultConfig::new()),
+            cfg: Box::new(DefaultConfig::new()),
         }
     }
 
@@ -150,6 +148,7 @@ impl Dictionary {
 #[cfg(test)]
 mod test {
     use super::*;
+    use std::thread;
     #[test]
     fn test_dictionary() {
         let mut dictionary = Dictionary::new();
@@ -165,5 +164,14 @@ mod test {
             let hits = dictionary.match_in_main_dict(word);
             assert_eq!(true, hits.len() > 0);
         }
+    }
+
+    #[test]
+    fn test_thread_safe() {
+        let dict = Dictionary::new();
+        let t = thread::spawn(move || {
+            println!("{:?}", dict.is_stop_word("的", 0, 1));
+        });
+        t.join().unwrap();
     }
 }

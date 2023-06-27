@@ -207,6 +207,7 @@ impl Trie {
 #[cfg(test)]
 mod test {
     use super::*;
+    use std::thread;
     #[test]
     fn trie_exist() {
         let mut trie = Trie::new();
@@ -239,5 +240,14 @@ mod test {
         for hit in hits.iter() {
             log::info!("{:?}", hit);
         }
+    }
+
+    #[test]
+    fn test_thread_safe() {
+        let trie = Trie::new();
+        let t = thread::spawn(move || {
+            println!("{:?}", trie.size());
+        });
+        t.join().unwrap();
     }
 }

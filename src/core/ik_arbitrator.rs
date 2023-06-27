@@ -9,7 +9,7 @@ pub struct IKArbitrator {}
 impl IKArbitrator {
     pub fn process(
         &mut self,
-        org_lexemes: &mut OrderedLinkedList<Lexeme>,
+        org_lexemes: &OrderedLinkedList<Lexeme>,
         mode: TokenMode,
     ) -> HashMap<usize, LexemePath> {
         let mut path_map = HashMap::<usize, LexemePath>::new();
@@ -39,7 +39,7 @@ impl IKArbitrator {
         path_map
     }
 
-    fn judge(&mut self, cur_node: Option<&Link<Lexeme>>) -> Option<LexemePath> {
+    fn judge(&self, cur_node: Option<&Link<Lexeme>>) -> Option<LexemePath> {
         let mut path_options = BTreeSet::new();
         let mut option = LexemePath::new();
         let mut lexeme_stack = self.forward_path(cur_node, &mut option);

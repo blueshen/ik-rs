@@ -4,7 +4,6 @@ use serde::{Deserialize, Serialize};
 use serde_yaml;
 use std::fs::File;
 use std::io::{BufReader, Read};
-use std::marker::{Send, Sync};
 use std::path::Path;
 use std::vec::Vec;
 
@@ -19,9 +18,6 @@ pub struct DefaultConfig {
     ext_dicts: Vec<String>,
     ext_stop_word_dicts: Vec<String>,
 }
-
-unsafe impl Sync for DefaultConfig {}
-unsafe impl Send for DefaultConfig {}
 
 impl DefaultConfig {
     pub fn new() -> DefaultConfig {
@@ -40,7 +36,7 @@ impl DefaultConfig {
 
 fn root_path() -> String {
     let mut root_path = env!("CARGO_MANIFEST_DIR").to_string();
-    root_path.push_str("/");
+    root_path.push('/');
     root_path
 }
 
@@ -58,25 +54,25 @@ impl Configuration for DefaultConfig {
     }
 
     fn get_ext_dictionaries(&self) -> Vec<String> {
-        let mut dicts = Vec::new();
-        for dict in self.ext_dicts.iter() {
-            let mut root_path = root_path();
-            root_path.push_str(dict);
-            dicts.push(root_path);
-        }
+        let root_path = root_path();
+        let dicts = self
+            .ext_dicts
+            .iter()
+            .map(|dict| root_path.clone() + dict)
+            .collect();
         dicts
     }
 
     fn get_ext_stop_word_dictionaries(&self) -> Vec<String> {
         let mut dicts = Vec::new();
-        let mut stop_word_full = root_path();
-        stop_word_full.push_str(self.stop_word_dict.as_str());
-        dicts.push(stop_word_full);
-        for dict in self.ext_stop_word_dicts.iter() {
-            let mut root_path = root_path();
-            root_path.push_str(dict);
-            dicts.push(root_path);
-        }
+        let root_path = root_path();
+        dicts.push(root_path.clone() + self.stop_word_dict.as_str());
+        let ext_stopwords = self
+            .ext_stop_word_dicts
+            .iter()
+            .map(|dict| root_path.clone() + dict.as_str())
+            .collect::<Vec<String>>();
+        dicts.extend(ext_stopwords);
         dicts
     }
 }

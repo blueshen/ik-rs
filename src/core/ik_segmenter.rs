@@ -49,7 +49,7 @@ impl IKSegmenter {
             }
         }
 
-        let mut path_map = self.arbitrator.process(&mut origin_lexemes, mode);
+        let mut path_map = self.arbitrator.process(&origin_lexemes, mode);
         let mut results = self.output_to_result(&mut path_map, input);
         let mut final_results = Vec::with_capacity(results.len());
         // remove stop word
@@ -72,7 +72,7 @@ impl IKSegmenter {
     }
 
     fn output_to_result(
-        &mut self,
+        &self,
         path_map: &mut HashMap<usize, LexemePath>,
         input: &str,
     ) -> LinkedList<Lexeme> {
@@ -132,7 +132,7 @@ impl IKSegmenter {
         }
     }
 
-    fn compound(&mut self, results: &mut LinkedList<Lexeme>, result: &mut Lexeme) {
+    fn compound(&self, results: &mut LinkedList<Lexeme>, result: &mut Lexeme) {
         if !results.is_empty() {
             if LexemeType::ARABIC == result.lexeme_type {
                 let mut append_ok = false;
@@ -169,6 +169,7 @@ impl IKSegmenter {
 mod test {
     use super::*;
     use log;
+    use std::thread;
 
     #[test]
     fn test_index_segment() {
@@ -207,5 +208,14 @@ mod test {
             "我的年纪是十八",
         ];
         texts
+    }
+
+    #[test]
+    fn test_thread_safe() {
+        let mut ik = IKSegmenter::new();
+        let t = thread::spawn(move || {
+            println!("{:?}", ik.tokenize("明天星期几?", TokenMode::INDEX));
+        });
+        t.join().unwrap();
     }
 }
