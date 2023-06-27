@@ -53,12 +53,12 @@ pub fn regularize(input: char) -> char {
     } else if input_code >= 'A' as u32 && input_code <= 'Z' as u32 {
         input_code += 32; // lowercase
     }
-    let to_char = char::from_u32(input_code).unwrap();
-    to_char
+    char::from_u32(input_code).unwrap()
 }
 
 pub fn regularize_str(input: &str) -> String {
-    let mut regular_str = "".to_string();
+    let mut regular_str = String::from("");
+    // let chars = input.chars().map(|c| regularize(c)).collect::<Vec<char>>();
     for c in input.chars() {
         regular_str.push(regularize(c));
     }

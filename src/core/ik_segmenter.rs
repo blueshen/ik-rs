@@ -1,5 +1,5 @@
-use crate::core::char_util::regularize_str;
 use crate::core::char_util::CharType;
+use crate::core::char_util::{regularize_str, utf8_len};
 use crate::core::cjk_segmenter::CJKSegmenter;
 use crate::core::cn_quantifier_segmenter::CnQuantifierSegmenter;
 use crate::core::ik_arbitrator::IKArbitrator;
@@ -51,7 +51,7 @@ impl IKSegmenter {
 
         let mut path_map = self.arbitrator.process(&mut origin_lexemes, mode);
         let mut results = self.output_to_result(&mut path_map, input);
-        let mut final_results = Vec::new();
+        let mut final_results = Vec::with_capacity(results.len());
         // remove stop word
         let mut result = results.pop_front();
         while let Some(ref mut result_value) = result {
@@ -60,8 +60,8 @@ impl IKSegmenter {
             }
             if !GLOBAL_DICT.lock().unwrap().is_stop_word(
                 input,
-                result_value.begin_position(),
-                result_value.length(),
+                result_value.begin_pos(),
+                result_value.len(),
             ) {
                 result_value.parse_lexeme_text(input);
                 final_results.push(result_value.clone())
@@ -78,7 +78,7 @@ impl IKSegmenter {
     ) -> LinkedList<Lexeme> {
         let mut results = LinkedList::new();
         let mut index = 0usize;
-        let char_count = input.chars().count();
+        let char_count = utf8_len(input);
         while index < char_count {
             let curr_char = input.chars().nth(index).unwrap();
             let cur_char_type = CharType::from(curr_char);
@@ -91,10 +91,10 @@ impl IKSegmenter {
                 let mut cur_lexeme = p.poll_first();
                 while let Some(ref lexeme) = cur_lexeme {
                     results.push_back(lexeme.clone());
-                    index = lexeme.end_position();
+                    index = lexeme.end_pos();
                     cur_lexeme = p.poll_first();
                     if let Some(ref lexeme) = cur_lexeme {
-                        while index < lexeme.begin_position() {
+                        while index < lexeme.begin_pos() {
                             let curr_char = input.chars().nth(index).unwrap();
                             let cur_char_type = CharType::from(curr_char);
                             self.add_single_lexeme(&mut results, cur_char_type, index);
@@ -116,16 +116,19 @@ impl IKSegmenter {
         cur_char_type: CharType,
         index: usize,
     ) {
+        let mut lexeme_type = None;
         match cur_char_type {
             CharType::CHINESE => {
-                let single_char_lexeme = Lexeme::new(index..index + 1, LexemeType::CNCHAR);
-                results.push_back(single_char_lexeme);
+                lexeme_type = Some(LexemeType::CNCHAR);
             }
             CharType::OtherCjk => {
-                let single_char_lexeme = Lexeme::new(index..index + 1, LexemeType::OtherCJK);
-                results.push_back(single_char_lexeme);
+                lexeme_type = Some(LexemeType::OtherCJK);
             }
             _ => {}
+        }
+        if let Some(l_type) = lexeme_type {
+            let single_char_lexeme = Lexeme::new(index..index + 1, l_type);
+            results.push_back(single_char_lexeme);
         }
     }
 

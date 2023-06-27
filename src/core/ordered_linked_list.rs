@@ -71,7 +71,7 @@ impl<T: PartialOrd> OrderedLinkedList<T> {
         }
     }
 
-    pub fn length(&self) -> usize {
+    pub fn len(&self) -> usize {
         self.length
     }
 
@@ -655,9 +655,9 @@ mod test {
     fn test_clear() {
         let mut list = _new_list_zst();
 
-        assert_eq!(list.length(), 3);
+        assert_eq!(list.len(), 3);
         list.clear();
-        assert_eq!(list.length(), 0);
+        assert_eq!(list.len(), 0);
     }
 
     #[test]

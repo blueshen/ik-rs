@@ -26,7 +26,7 @@ impl TrieNode {
         TrieNode {
             value: Some(c),
             final_state,
-            child_nodes: HashMap::with_capacity(32),
+            child_nodes: HashMap::new(),
         }
     }
 
@@ -34,7 +34,7 @@ impl TrieNode {
         TrieNode {
             value: None,
             final_state: false,
-            child_nodes: HashMap::with_capacity(32),
+            child_nodes: HashMap::new(),
         }
     }
 
@@ -72,7 +72,7 @@ impl TrieNode {
             }
             current_node = current_node.child_nodes.get(&curr_char).unwrap();
         }
-        return current_node.final_state;
+        return current_node.is_final_state();
     }
 
     pub fn delete(&mut self, string_val: &str) -> usize {
@@ -121,7 +121,7 @@ impl TrieNode {
                 if !current_node.child_nodes.contains_key(&curr_char) {
                     break;
                 }
-                if current_node.final_state {
+                if current_node.is_final_state() {
                     let mut hit = Hit::new_with_pos(offset..end + 1);
                     hit.set_match();
                     if current_node.has_childs() {
@@ -134,7 +134,7 @@ impl TrieNode {
             }
             if !current_node.is_root() {
                 let mut hit = Hit::new_with_pos(offset..end + 1);
-                if current_node.final_state {
+                if current_node.is_final_state() {
                     hit.set_match();
                 }
                 if current_node.has_childs() {

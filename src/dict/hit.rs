@@ -6,8 +6,8 @@ const PREFIX: u8 = 0b00000010;
 
 #[derive(Debug, Clone)]
 pub struct Hit {
-    pub hit_state: u8,
-    pub pos: Range<usize>,
+    hit_state: u8,
+    pos: Range<usize>,
 }
 
 impl Default for Hit {
@@ -26,6 +26,10 @@ impl Hit {
         hit
     }
 
+    pub fn pos(&self) -> Range<usize> {
+        self.pos.clone()
+    }
+
     pub fn set_match(&mut self) {
         self.hit_state = self.hit_state | MATCH;
     }
@@ -42,7 +46,7 @@ impl Hit {
     }
 
     #[allow(dead_code)]
-    pub fn length(&self) -> usize {
+    pub fn len(&self) -> usize {
         self.pos.len()
     }
 }

@@ -70,17 +70,16 @@ impl LetterSegmenter {
                     self.end = Some(cursor);
                 }
             }
-            Some(_) => {
+            Some(start) => {
                 if CharType::ARABIC == curr_char_type || CharType::ENGLISH == curr_char_type {
                     self.end = Some(cursor);
-                } else if CharType::USELESS == curr_char_type && self.is_letter_connector(curr_char)
+                } else if CharType::USELESS == curr_char_type
+                    && self.is_letter_connector(&curr_char)
                 {
                     self.end = Some(cursor);
                 } else {
-                    let new_lexeme = Lexeme::new(
-                        (self.start.unwrap())..(self.end.unwrap() + 1),
-                        LexemeType::LETTER,
-                    );
+                    let new_lexeme =
+                        Lexeme::new(start..(self.end.unwrap() + 1), LexemeType::LETTER);
                     origin_lexemes.insert(new_lexeme);
                     self.reset_mix_state();
                 }
@@ -88,10 +87,7 @@ impl LetterSegmenter {
         }
         if let Some(index) = self.end {
             if index == (char_count - 1) {
-                let new_lexeme = Lexeme::new(
-                    (self.start.unwrap())..(self.end.unwrap() + 1),
-                    LexemeType::LETTER,
-                );
+                let new_lexeme = Lexeme::new((self.start.unwrap())..index + 1, LexemeType::LETTER);
                 origin_lexemes.insert(new_lexeme);
                 self.reset_mix_state();
             }
@@ -115,15 +111,13 @@ impl LetterSegmenter {
                 }
                 _ => {}
             },
-            Some(_) => match curr_char_type {
+            Some(start) => match curr_char_type {
                 CharType::ENGLISH => {
                     self.english_end = Some(cursor);
                 }
                 _ => {
-                    let new_lexeme = Lexeme::new(
-                        (self.english_start.unwrap())..(self.english_end.unwrap() + 1),
-                        LexemeType::ENGLISH,
-                    );
+                    let new_lexeme =
+                        Lexeme::new(start..(self.english_end.unwrap() + 1), LexemeType::ENGLISH);
                     origin_lexemes.insert(new_lexeme);
                     self.reset_english_state();
                 }
@@ -133,7 +127,7 @@ impl LetterSegmenter {
         if let Some(index) = self.english_end {
             if index == (char_count - 1) {
                 let new_lexeme = Lexeme::new(
-                    (self.english_start.unwrap())..(self.english_end.unwrap() + 1),
+                    (self.english_start.unwrap())..index + 1,
                     LexemeType::ENGLISH,
                 );
                 origin_lexemes.insert(new_lexeme);
@@ -159,16 +153,14 @@ impl LetterSegmenter {
                 }
                 _ => {}
             },
-            Some(_) => {
+            Some(start) => {
                 if CharType::ARABIC == curr_char_type {
                     self.arabic_end = Some(cursor);
-                } else if CharType::USELESS == curr_char_type && self.is_num_connector(curr_char) {
+                } else if CharType::USELESS == curr_char_type && self.is_num_connector(&curr_char) {
                     // do nothing
                 } else {
-                    let new_lexeme = Lexeme::new(
-                        (self.arabic_start.unwrap())..(self.arabic_end.unwrap() + 1),
-                        LexemeType::ARABIC,
-                    );
+                    let new_lexeme =
+                        Lexeme::new(start..(self.arabic_end.unwrap() + 1), LexemeType::ARABIC);
                     origin_lexemes.insert(new_lexeme);
                     self.reset_arabic_state();
                 }
@@ -177,10 +169,8 @@ impl LetterSegmenter {
         let char_count = utf8_len(input);
         if let Some(index) = self.arabic_end {
             if index == (char_count - 1) {
-                let new_lexeme = Lexeme::new(
-                    (self.arabic_start.unwrap())..(self.arabic_end.unwrap() + 1),
-                    LexemeType::ARABIC,
-                );
+                let new_lexeme =
+                    Lexeme::new((self.arabic_start.unwrap())..index + 1, LexemeType::ARABIC);
                 origin_lexemes.insert(new_lexeme);
                 self.reset_arabic_state();
             }
@@ -201,11 +191,11 @@ impl LetterSegmenter {
         self.arabic_end = None;
     }
 
-    fn is_letter_connector(&self, input: char) -> bool {
-        LETTER_CONNECTOR.contains(&input)
+    fn is_letter_connector(&self, input: &char) -> bool {
+        LETTER_CONNECTOR.contains(input)
     }
 
-    fn is_num_connector(&self, input: char) -> bool {
-        NUM_CONNECTOR.contains(&input)
+    fn is_num_connector(&self, input: &char) -> bool {
+        NUM_CONNECTOR.contains(input)
     }
 }

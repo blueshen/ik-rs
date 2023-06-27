@@ -60,9 +60,9 @@ impl PartialEq for Lexeme {
 
 impl PartialOrd for Lexeme {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        return if self.begin_position() < other.begin_position() {
+        return if self.begin_pos() < other.begin_pos() {
             Some(Ordering::Less)
-        } else if self.begin_position() == other.begin_position() {
+        } else if self.begin_pos() == other.begin_pos() {
             if self.pos.len() > other.pos.len() {
                 Some(Ordering::Less)
             } else if self.pos.len() == other.pos.len() {
@@ -86,15 +86,15 @@ impl Lexeme {
         }
     }
 
-    pub fn begin_position(&self) -> usize {
+    pub fn begin_pos(&self) -> usize {
         self.offset + self.pos.start
     }
 
-    pub fn end_position(&self) -> usize {
+    pub fn end_pos(&self) -> usize {
         self.offset + self.pos.end
     }
 
-    pub fn length(&self) -> usize {
+    pub fn len(&self) -> usize {
         self.pos.len()
     }
 
@@ -103,12 +103,12 @@ impl Lexeme {
     }
 
     pub fn parse_lexeme_text(&mut self, input: &str) {
-        let sub_text = utf8_slice(input, self.begin_position(), self.end_position());
+        let sub_text = utf8_slice(input, self.begin_pos(), self.end_pos());
         self.lexeme_text = sub_text.to_string();
     }
 
     pub fn append(&mut self, l: &Lexeme, lexeme_type: LexemeType) -> bool {
-        if self.end_position() == l.begin_position() {
+        if self.end_pos() == l.begin_pos() {
             self.pos.end = l.pos.end;
             self.lexeme_type = lexeme_type;
             return true;

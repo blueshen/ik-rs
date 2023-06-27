@@ -57,11 +57,9 @@ impl CnQuantifierSegmenter {
         let char_count = utf8_len(input);
         if self.initial_state() {
             match curr_char_type {
-                CharType::CHINESE => {
-                    if self.chn_number_chars.contains(&curr_char) {
-                        self.start = Some(cursor);
-                        self.end = Some(cursor);
-                    }
+                CharType::CHINESE if self.chn_number_chars.contains(&curr_char) => {
+                    self.start = Some(cursor);
+                    self.end = Some(cursor);
                 }
                 _ => {}
             }
@@ -79,10 +77,7 @@ impl CnQuantifierSegmenter {
         }
         if let Some(index) = self.end {
             if index == (char_count - 1) {
-                let new_lexeme = Lexeme::new(
-                    (self.start.unwrap())..(self.end.unwrap() + 1),
-                    LexemeType::CNUM,
-                );
+                let new_lexeme = Lexeme::new((self.start.unwrap())..index + 1, LexemeType::CNUM);
                 origin_lexemes.insert(new_lexeme);
                 self.reset_state();
             }
@@ -107,7 +102,7 @@ impl CnQuantifierSegmenter {
                     );
                     for hit in hits.iter() {
                         if hit.is_match() {
-                            let new_lexeme = Lexeme::new(hit.pos.clone(), LexemeType::COUNT);
+                            let new_lexeme = Lexeme::new(hit.pos(), LexemeType::COUNT);
                             origin_lexemes.insert(new_lexeme);
                         }
                     }
@@ -127,19 +122,16 @@ impl CnQuantifierSegmenter {
         }
         if origin_lexemes.empty() {
             return false;
-        } else {
-            let last = origin_lexemes.peek_back();
-            if let Some(lexeme) = last {
-                if lexeme.lexeme_type == LexemeType::ARABIC
-                    || lexeme.lexeme_type == LexemeType::CNUM
-                {
-                    if lexeme.end_position() == cursor {
-                        return true;
-                    }
+        }
+        let last = origin_lexemes.peek_back();
+        if let Some(lexeme) = last {
+            if lexeme.lexeme_type == LexemeType::ARABIC || lexeme.lexeme_type == LexemeType::CNUM {
+                if lexeme.end_pos() == cursor {
+                    return true;
                 }
             }
-            return false;
         }
+        return false;
     }
 
     fn initial_state(&self) -> bool {
