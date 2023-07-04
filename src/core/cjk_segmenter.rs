@@ -15,7 +15,7 @@ impl Segmenter for CJKSegmenter {
         &mut self,
         input: &str,
         cursor: usize,
-        curr_char_type: CharType,
+        curr_char_type: &CharType,
         origin_lexemes: &mut OrderedLinkedList<Lexeme>,
     ) {
         match curr_char_type {

@@ -45,7 +45,7 @@ impl IKSegmenter {
         for (cursor, curr_char) in input.chars().enumerate() {
             let curr_char_type = CharType::from(curr_char);
             for segmenter in self.segmenters.iter_mut() {
-                segmenter.analyze(input, cursor, curr_char_type, &mut origin_lexemes);
+                segmenter.analyze(input, cursor, &curr_char_type, &mut origin_lexemes);
             }
         }
 
@@ -82,9 +82,12 @@ impl IKSegmenter {
         while index < char_count {
             let curr_char = input.chars().nth(index).unwrap();
             let cur_char_type = CharType::from(curr_char);
-            if CharType::USELESS == cur_char_type {
-                index += 1;
-                continue;
+            match cur_char_type {
+                CharType::USELESS => {
+                    index += 1;
+                    continue;
+                }
+                _ => {}
             }
             let path = path_map.get_mut(&index);
             if let Some(p) = path {
@@ -97,13 +100,13 @@ impl IKSegmenter {
                         while index < lexeme.begin_pos() {
                             let curr_char = input.chars().nth(index).unwrap();
                             let cur_char_type = CharType::from(curr_char);
-                            self.add_single_lexeme(&mut results, cur_char_type, index);
+                            self.add_single_lexeme(&mut results, &cur_char_type, index);
                             index += 1;
                         }
                     }
                 }
             } else {
-                self.add_single_lexeme(&mut results, cur_char_type, index);
+                self.add_single_lexeme(&mut results, &cur_char_type, index);
                 index += 1;
             }
         }
@@ -113,7 +116,7 @@ impl IKSegmenter {
     fn add_single_lexeme(
         &self,
         results: &mut LinkedList<Lexeme>,
-        cur_char_type: CharType,
+        cur_char_type: &CharType,
         index: usize,
     ) {
         let mut lexeme_type = None;
@@ -126,37 +129,40 @@ impl IKSegmenter {
             }
             _ => {}
         }
-        if let Some(l_type) = lexeme_type {
+        lexeme_type.map(|l_type| {
             let single_char_lexeme = Lexeme::new(index..index + 1, l_type);
             results.push_back(single_char_lexeme);
-        }
+        });
     }
 
     fn compound(&self, results: &mut LinkedList<Lexeme>, result: &mut Lexeme) {
         if !results.is_empty() {
-            if LexemeType::ARABIC == result.lexeme_type {
+            if LexemeType::ARABIC == result.lexeme_type() {
                 let mut append_ok = false;
                 let next_lexeme = results.front();
-                if let Some(next) = next_lexeme {
-                    if LexemeType::CNUM == next.lexeme_type {
+                next_lexeme.map(|next| match next.lexeme_type() {
+                    LexemeType::CNUM => {
                         append_ok = result.append(next, LexemeType::CNUM);
-                    } else if LexemeType::COUNT == next.lexeme_type {
+                    }
+                    LexemeType::COUNT => {
                         append_ok = result.append(next, LexemeType::CQUAN);
                     }
-                }
+                    _ => {}
+                });
                 if append_ok {
                     results.pop_front();
                 }
             }
 
-            if LexemeType::CNUM == result.lexeme_type && !results.is_empty() {
+            if LexemeType::CNUM == result.lexeme_type() && !results.is_empty() {
                 let mut append_ok = false;
                 let next_lexeme = results.front();
-                if let Some(next) = next_lexeme {
-                    if LexemeType::COUNT == next.lexeme_type {
+                next_lexeme.map(|next| match next.lexeme_type() {
+                    LexemeType::COUNT => {
                         append_ok = result.append(next, LexemeType::CQUAN);
                     }
-                }
+                    _ => {}
+                });
                 if append_ok {
                     results.pop_front();
                 }

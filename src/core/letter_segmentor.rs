@@ -27,7 +27,7 @@ impl Segmenter for LetterSegmenter {
         &mut self,
         input: &str,
         cursor: usize,
-        curr_char_type: CharType,
+        curr_char_type: &CharType,
         origin_lexemes: &mut OrderedLinkedList<Lexeme>,
     ) {
         self.process_english_letter(input, cursor, curr_char_type, origin_lexemes);
@@ -58,40 +58,41 @@ impl LetterSegmenter {
         &mut self,
         input: &str,
         cursor: usize,
-        curr_char_type: CharType,
+        curr_char_type: &CharType,
         origin_lexemes: &mut OrderedLinkedList<Lexeme>,
     ) {
         let curr_char = input.chars().nth(cursor).unwrap();
         let char_count = utf8_len(input);
         match self.start {
-            None => {
-                if CharType::ARABIC == curr_char_type || CharType::ENGLISH == curr_char_type {
+            None => match curr_char_type {
+                CharType::ARABIC | CharType::ENGLISH => {
                     self.start = Some(cursor);
                     self.end = Some(cursor);
                 }
-            }
-            Some(start) => {
-                if CharType::ARABIC == curr_char_type || CharType::ENGLISH == curr_char_type {
+                _ => {}
+            },
+            Some(start) => match curr_char_type {
+                CharType::ARABIC | CharType::ENGLISH => {
                     self.end = Some(cursor);
-                } else if CharType::USELESS == curr_char_type
-                    && self.is_letter_connector(&curr_char)
-                {
+                }
+                CharType::USELESS if self.is_letter_connector(&curr_char) => {
                     self.end = Some(cursor);
-                } else {
+                }
+                _ => {
                     let new_lexeme =
                         Lexeme::new(start..(self.end.unwrap() + 1), LexemeType::LETTER);
                     origin_lexemes.insert(new_lexeme);
                     self.reset_mix_state();
                 }
-            }
+            },
         }
-        if let Some(index) = self.end {
-            if index == (char_count - 1) {
-                let new_lexeme = Lexeme::new((self.start.unwrap())..index + 1, LexemeType::LETTER);
+        self.end.zip(self.start).map(|(end, start)| {
+            if end == (char_count - 1) {
+                let new_lexeme = Lexeme::new(start..end + 1, LexemeType::LETTER);
                 origin_lexemes.insert(new_lexeme);
                 self.reset_mix_state();
             }
-        }
+        });
     }
 
     // english
@@ -99,7 +100,7 @@ impl LetterSegmenter {
         &mut self,
         input: &str,
         cursor: usize,
-        curr_char_type: CharType,
+        curr_char_type: &CharType,
         origin_lexemes: &mut OrderedLinkedList<Lexeme>,
     ) {
         let char_count = utf8_len(input);
@@ -123,17 +124,15 @@ impl LetterSegmenter {
                 }
             },
         }
-
-        if let Some(index) = self.english_end {
-            if index == (char_count - 1) {
-                let new_lexeme = Lexeme::new(
-                    (self.english_start.unwrap())..index + 1,
-                    LexemeType::ENGLISH,
-                );
-                origin_lexemes.insert(new_lexeme);
-                self.reset_english_state();
-            }
-        }
+        self.english_end
+            .zip(self.english_start)
+            .map(|(end, start)| {
+                if end == (char_count - 1) {
+                    let new_lexeme = Lexeme::new(start..end + 1, LexemeType::ENGLISH);
+                    origin_lexemes.insert(new_lexeme);
+                    self.reset_english_state();
+                }
+            });
     }
 
     // arabic
@@ -141,7 +140,7 @@ impl LetterSegmenter {
         &mut self,
         input: &str,
         cursor: usize,
-        curr_char_type: CharType,
+        curr_char_type: &CharType,
         origin_lexemes: &mut OrderedLinkedList<Lexeme>,
     ) {
         let curr_char = input.chars().nth(cursor).unwrap();
@@ -153,28 +152,27 @@ impl LetterSegmenter {
                 }
                 _ => {}
             },
-            Some(start) => {
-                if CharType::ARABIC == curr_char_type {
+            Some(start) => match curr_char_type {
+                CharType::ARABIC => {
                     self.arabic_end = Some(cursor);
-                } else if CharType::USELESS == curr_char_type && self.is_num_connector(&curr_char) {
-                    // do nothing
-                } else {
+                }
+                CharType::USELESS if self.is_num_connector(&curr_char) => {}
+                _ => {
                     let new_lexeme =
                         Lexeme::new(start..(self.arabic_end.unwrap() + 1), LexemeType::ARABIC);
                     origin_lexemes.insert(new_lexeme);
                     self.reset_arabic_state();
                 }
-            }
+            },
         }
         let char_count = utf8_len(input);
-        if let Some(index) = self.arabic_end {
-            if index == (char_count - 1) {
-                let new_lexeme =
-                    Lexeme::new((self.arabic_start.unwrap())..index + 1, LexemeType::ARABIC);
+        self.arabic_end.zip(self.arabic_start).map(|(end, start)| {
+            if end == (char_count - 1) {
+                let new_lexeme = Lexeme::new(start..end + 1, LexemeType::ARABIC);
                 origin_lexemes.insert(new_lexeme);
                 self.reset_arabic_state();
             }
-        }
+        });
     }
     fn reset_mix_state(&mut self) {
         self.start = None;

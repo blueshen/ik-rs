@@ -7,7 +7,7 @@ pub trait Segmenter {
         &mut self,
         input: &str,
         cursor: usize,
-        curr_char_type: CharType,
+        curr_char_type: &CharType,
         origin_lexemes: &mut OrderedLinkedList<Lexeme>,
     );
     fn name(&self) -> &str;

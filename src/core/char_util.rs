@@ -1,6 +1,6 @@
 use unicode_blocks;
 
-#[derive(Debug, PartialEq, Copy, Clone)]
+#[derive(Debug)]
 pub enum CharType {
     USELESS,
     ARABIC,
@@ -38,11 +38,6 @@ impl From<char> for CharType {
     }
 }
 
-// identify CharType Of char
-// pub fn char_type_of(input: char) -> CharType {
-//     CharType::from(input)
-// }
-
 // full char -> half char && lowercase
 pub fn regularize(input: char) -> char {
     let mut input_code = u32::from(input);
@@ -58,7 +53,6 @@ pub fn regularize(input: char) -> char {
 
 pub fn regularize_str(input: &str) -> String {
     let mut regular_str = String::from("");
-    // let chars = input.chars().map(|c| regularize(c)).collect::<Vec<char>>();
     for c in input.chars() {
         regular_str.push(regularize(c));
     }

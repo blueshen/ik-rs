@@ -20,7 +20,7 @@ impl Segmenter for CnQuantifierSegmenter {
         &mut self,
         input: &str,
         cursor: usize,
-        curr_char_type: CharType,
+        curr_char_type: &CharType,
         origin_lexemes: &mut OrderedLinkedList<Lexeme>,
     ) {
         self.process_cnumber(input, cursor, curr_char_type, origin_lexemes);
@@ -50,7 +50,7 @@ impl CnQuantifierSegmenter {
         &mut self,
         input: &str,
         cursor: usize,
-        curr_char_type: CharType,
+        curr_char_type: &CharType,
         origin_lexemes: &mut OrderedLinkedList<Lexeme>,
     ) {
         let curr_char = &input.chars().nth(cursor).unwrap();
@@ -64,31 +64,34 @@ impl CnQuantifierSegmenter {
                 _ => {}
             }
         } else {
-            if curr_char_type == CharType::CHINESE && self.chn_number_chars.contains(&curr_char) {
-                self.end = Some(cursor);
-            } else {
-                let new_lexeme = Lexeme::new(
-                    (self.start.unwrap())..(self.end.unwrap() + 1),
-                    LexemeType::CNUM,
-                );
+            match curr_char_type {
+                CharType::CHINESE if self.chn_number_chars.contains(&curr_char) => {
+                    self.end = Some(cursor);
+                }
+                _ => {
+                    let new_lexeme = Lexeme::new(
+                        (self.start.unwrap())..(self.end.unwrap() + 1),
+                        LexemeType::CNUM,
+                    );
+                    origin_lexemes.insert(new_lexeme);
+                    self.reset_state();
+                }
+            }
+        }
+        self.end.zip(self.start).map(|(end, start)| {
+            if end == (char_count - 1) {
+                let new_lexeme = Lexeme::new(start..end + 1, LexemeType::CNUM);
                 origin_lexemes.insert(new_lexeme);
                 self.reset_state();
             }
-        }
-        if let Some(index) = self.end {
-            if index == (char_count - 1) {
-                let new_lexeme = Lexeme::new((self.start.unwrap())..index + 1, LexemeType::CNUM);
-                origin_lexemes.insert(new_lexeme);
-                self.reset_state();
-            }
-        }
+        });
     }
 
     fn process_count(
         &mut self,
         input: &str,
         cursor: usize,
-        curr_char_type: CharType,
+        curr_char_type: &CharType,
         origin_lexemes: &mut OrderedLinkedList<Lexeme>,
     ) {
         if self.need_count_scan(cursor, origin_lexemes) {
@@ -124,14 +127,16 @@ impl CnQuantifierSegmenter {
             return false;
         }
         let last = origin_lexemes.peek_back();
-        if let Some(lexeme) = last {
-            if lexeme.lexeme_type == LexemeType::ARABIC || lexeme.lexeme_type == LexemeType::CNUM {
+        let mut need_scan = false;
+        last.map(|lexeme| match lexeme.lexeme_type() {
+            LexemeType::ARABIC | LexemeType::CNUM => {
                 if lexeme.end_pos() == cursor {
-                    return true;
+                    need_scan = true;
                 }
             }
-        }
-        return false;
+            _ => {}
+        });
+        need_scan
     }
 
     fn initial_state(&self) -> bool {

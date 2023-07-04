@@ -38,7 +38,7 @@ pub struct Lexeme {
     offset: usize, // maybe use later, current default = 0
     pos: Range<usize>,
     lexeme_text: String,
-    pub(crate) lexeme_type: LexemeType,
+    lexeme_type: LexemeType,
 }
 
 impl Clone for Lexeme {
@@ -84,6 +84,10 @@ impl Lexeme {
             lexeme_type,
             lexeme_text: String::from(""),
         }
+    }
+
+    pub fn lexeme_type(&self) -> LexemeType {
+        self.lexeme_type.clone()
     }
 
     pub fn begin_pos(&self) -> usize {
