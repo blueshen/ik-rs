@@ -51,11 +51,11 @@ impl LexemePath {
         } else {
             self.lexeme_list.insert(lexeme.clone());
             self.payload_len += lexeme.len();
-            let head = self.lexeme_list.peek_front(); //  peekFirst();
+            let head = self.lexeme_list.peek_front();
             if let Some(h) = head {
                 self.begin = h.begin_pos() as i32;
             }
-            let tail = self.lexeme_list.peek_back(); //  peekLast();
+            let tail = self.lexeme_list.peek_back();
             if let Some(t) = tail {
                 self.end = t.end_pos() as i32;
             }
@@ -153,13 +153,13 @@ impl Display for LexemePath {
 impl Clone for LexemePath {
     fn clone(&self) -> Self {
         let mut the_copy = LexemePath::new();
-        the_copy.begin = self.begin;
-        the_copy.end = self.end;
-        the_copy.payload_len = self.payload_len;
+        the_copy.begin = self.begin();
+        the_copy.end = self.end();
+        the_copy.payload_len = self.payload_len();
         for lexeme in self.lexeme_list.iter() {
             the_copy.lexeme_list.insert(lexeme.clone());
         }
-        return the_copy;
+        the_copy
     }
 }
 
@@ -215,7 +215,7 @@ impl PartialEq for LexemePath {
     fn eq(&self, other: &Self) -> bool {
         return if self.begin() == other.begin()
             && self.end() == other.end()
-            && self.payload_len == other.payload_len
+            && self.payload_len() == other.payload_len()
             && self.lexeme_list.len() == other.lexeme_list.len()
         {
             for (a, b) in self.lexeme_list.iter().zip(other.lexeme_list.iter()) {

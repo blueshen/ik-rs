@@ -1,5 +1,4 @@
-use crate::core::char_util::CharType;
-use crate::core::char_util::{regularize_str, utf8_len};
+use crate::core::char_util::{regularize_str, utf8_len, CharType};
 use crate::core::cjk_segmenter::CJKSegmenter;
 use crate::core::cn_quantifier_segmenter::CnQuantifierSegmenter;
 use crate::core::ik_arbitrator::IKArbitrator;
@@ -11,7 +10,7 @@ use crate::core::segmentor::Segmenter;
 use crate::dict::dictionary::GLOBAL_DICT;
 use std::collections::{HashMap, LinkedList};
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Debug)]
 pub enum TokenMode {
     INDEX,
     SEARCH,
@@ -49,14 +48,17 @@ impl IKSegmenter {
             }
         }
 
-        let mut path_map = self.arbitrator.process(&origin_lexemes, mode);
+        let mut path_map = self.arbitrator.process(&origin_lexemes, &mode);
         let mut results = self.output_to_result(&mut path_map, input);
         let mut final_results = Vec::with_capacity(results.len());
         // remove stop word
         let mut result = results.pop_front();
         while let Some(ref mut result_value) = result {
-            if mode == TokenMode::SEARCH {
-                self.compound(&mut results, result_value);
+            match &mode {
+                TokenMode::SEARCH => {
+                    self.compound(&mut results, result_value);
+                }
+                _ => {}
             }
             if !GLOBAL_DICT.lock().unwrap().is_stop_word(
                 input,
@@ -137,35 +139,41 @@ impl IKSegmenter {
 
     fn compound(&self, results: &mut LinkedList<Lexeme>, result: &mut Lexeme) {
         if !results.is_empty() {
-            if LexemeType::ARABIC == result.lexeme_type() {
-                let mut append_ok = false;
-                let next_lexeme = results.front();
-                next_lexeme.map(|next| match next.lexeme_type() {
-                    LexemeType::CNUM => {
-                        append_ok = result.append(next, LexemeType::CNUM);
+            match result.lexeme_type() {
+                LexemeType::ARABIC => {
+                    let mut append_ok = false;
+                    let next_lexeme = results.front();
+                    next_lexeme.map(|next| match next.lexeme_type() {
+                        LexemeType::CNUM => {
+                            append_ok = result.append(next, LexemeType::CNUM);
+                        }
+                        LexemeType::COUNT => {
+                            append_ok = result.append(next, LexemeType::CQUAN);
+                        }
+                        _ => {}
+                    });
+                    if append_ok {
+                        results.pop_front();
                     }
-                    LexemeType::COUNT => {
-                        append_ok = result.append(next, LexemeType::CQUAN);
-                    }
-                    _ => {}
-                });
-                if append_ok {
-                    results.pop_front();
                 }
+                _ => {}
             }
 
-            if LexemeType::CNUM == result.lexeme_type() && !results.is_empty() {
-                let mut append_ok = false;
-                let next_lexeme = results.front();
-                next_lexeme.map(|next| match next.lexeme_type() {
-                    LexemeType::COUNT => {
-                        append_ok = result.append(next, LexemeType::CQUAN);
+            match result.lexeme_type() {
+                LexemeType::CNUM if !results.is_empty() => {
+                    let mut append_ok = false;
+                    let next_lexeme = results.front();
+                    next_lexeme.map(|next| match next.lexeme_type() {
+                        LexemeType::COUNT => {
+                            append_ok = result.append(next, LexemeType::CQUAN);
+                        }
+                        _ => {}
+                    });
+                    if append_ok {
+                        results.pop_front();
                     }
-                    _ => {}
-                });
-                if append_ok {
-                    results.pop_front();
                 }
+                _ => {}
             }
         }
     }

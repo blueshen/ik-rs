@@ -4,7 +4,7 @@ const UNMATCH: u8 = 0b00000000;
 const MATCH: u8 = 0b00000001;
 const PREFIX: u8 = 0b00000010;
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Hit {
     hit_state: u8,
     pos: Range<usize>,

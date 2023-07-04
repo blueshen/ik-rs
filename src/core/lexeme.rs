@@ -2,7 +2,7 @@ use crate::core::char_util::utf8_slice;
 use std::cmp::Ordering;
 use std::ops::Range;
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Clone)]
 pub enum LexemeType {
     UNKNOWN,
     ENGLISH,
@@ -86,8 +86,8 @@ impl Lexeme {
         }
     }
 
-    pub fn lexeme_type(&self) -> LexemeType {
-        self.lexeme_type.clone()
+    pub fn lexeme_type(&self) -> &LexemeType {
+        &self.lexeme_type
     }
 
     pub fn begin_pos(&self) -> usize {

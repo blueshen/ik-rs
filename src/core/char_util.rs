@@ -59,6 +59,16 @@ pub fn regularize_str(input: &str) -> String {
     regular_str
 }
 
+#[allow(dead_code)]
+pub fn regular_char_enum(input: &str) -> Vec<(char, CharType)> {
+    let mut pair = Vec::with_capacity(input.chars().count());
+    for c in input.chars() {
+        let r_char = regularize(c);
+        pair.push((r_char, CharType::from(r_char)));
+    }
+    pair
+}
+
 pub fn utf8_slice(s: &str, begin: usize, end: usize) -> &str {
     if end < begin {
         return "";
