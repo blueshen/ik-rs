@@ -2,7 +2,7 @@
 [![Crates.io](https://img.shields.io/badge/crates.io-0.5.0-green)](https://crates.io/crates/ik-rs)
 [![License](https://img.shields.io/badge/license-LGPL--2.1-blue)](./LICENSE)
 [![Open Source Love](https://badges.frapsoft.com/os/v1/open-source.svg?v=103)](https://github.com/blueshen/ik-rs/releases)
-[![Build Status](https://app.travis-ci.com/blueshen/ik-rs.svg?branch=main)](https://app.travis-ci.com/github/blueshen/ik-rs)
+[![Rust](https://github.com/blueshen/ik-rs/actions/workflows/rust.yml/badge.svg?branch=main)](https://github.com/blueshen/ik-rs/actions/workflows/rust.yml)
 
 [![GitHub forks](https://img.shields.io/github/forks/blueshen/ik-rs.svg?style=social&label=Fork)](https://github.com/blueshen/ik-rs/network/members)
 [![GitHub stars](https://img.shields.io/github/stars/blueshen/ik-rs.svg?style=social&label=Star)](https://github.com/blueshen/ik-rs/stargazers)
