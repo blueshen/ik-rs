@@ -1,4 +1,7 @@
 # ik-rs
+## 0.3.6
+performance +20%
+
 ## 0.3.5
 better performance and more rusty
 
