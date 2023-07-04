@@ -10,7 +10,7 @@ use crate::core::segmentor::Segmenter;
 use crate::dict::dictionary::GLOBAL_DICT;
 use std::collections::{HashMap, LinkedList};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum TokenMode {
     INDEX,
     SEARCH,
