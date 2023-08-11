@@ -22,11 +22,11 @@ impl Segmenter for CJKSegmenter {
             CharType::USELESS => {}
             _ => {
                 let char_count = utf8_len(input);
-                let hits = GLOBAL_DICT.lock().unwrap().match_in_main_dict_with_offset(
+                let hits = GLOBAL_DICT.read().map_or(vec![], |dict|dict.match_in_main_dict_with_offset(
                     input,
                     cursor,
-                    char_count - cursor,
-                );
+                    char_count - cursor
+                ));
                 for hit in hits.iter() {
                     if hit.is_match() {
                         let new_lexeme = Lexeme::new(hit.pos(), LexemeType::CNWORD);

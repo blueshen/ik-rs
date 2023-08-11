@@ -17,7 +17,6 @@ pub enum TokenMode {
 }
 // ik main class
 pub struct IKSegmenter {
-    segmenters: Vec<Box<dyn Segmenter>>,
     arbitrator: IKArbitrator,
 }
 
@@ -28,22 +27,26 @@ impl IKSegmenter {
     pub fn new() -> Self {
         let ik = IKSegmenter {
             arbitrator: IKArbitrator::default(),
-            segmenters: vec![
-                Box::new(LetterSegmenter::default()),
-                Box::new(CnQuantifierSegmenter::default()),
-                Box::new(CJKSegmenter::default()),
-            ],
         };
         ik
     }
 
-    pub fn tokenize(&mut self, text: &str, mode: TokenMode) -> Vec<Lexeme> {
+    fn new_segmenters() -> Vec<Box<dyn Segmenter>> {
+        vec![
+            Box::new(LetterSegmenter::default()),
+            Box::new(CnQuantifierSegmenter::default()),
+            Box::new(CJKSegmenter::default()),
+        ]
+    }
+
+    pub fn tokenize(&/*mut*/ self, text: &str, mode: TokenMode) -> Vec<Lexeme> {
         let regular_str = regularize_str(text);
         let input = regular_str.as_str();
         let mut origin_lexemes = OrderedLinkedList::<Lexeme>::new();
+        let mut segmenters = IKSegmenter::new_segmenters();
         for (cursor, curr_char) in input.chars().enumerate() {
             let curr_char_type = CharType::from(curr_char);
-            for segmenter in self.segmenters.iter_mut() {
+            for segmenter in segmenters.iter_mut() {
                 segmenter.analyze(input, cursor, &curr_char_type, &mut origin_lexemes);
             }
         }
@@ -60,11 +63,13 @@ impl IKSegmenter {
                 }
                 _ => {}
             }
-            if !GLOBAL_DICT.lock().unwrap().is_stop_word(
-                input,
-                result_value.begin_pos(),
-                result_value.len(),
-            ) {
+
+            if !GLOBAL_DICT.read().map_or(false, |dict|{
+                dict.is_stop_word(
+                    input,
+                    result_value.begin_pos(),
+                    result_value.len())
+            }) {
                 result_value.parse_lexeme_text(input);
                 final_results.push(result_value.clone())
             }
@@ -187,7 +192,7 @@ mod test {
 
     #[test]
     fn test_index_segment() {
-        let mut ik = IKSegmenter::new();
+        let ik = IKSegmenter::new();
         let texts = _get_input_texts();
         for text in texts.iter() {
             let tokens = ik.tokenize(text, TokenMode::INDEX);
@@ -200,7 +205,7 @@ mod test {
 
     #[test]
     fn test_search_segment() {
-        let mut ik = IKSegmenter::new();
+        let ik = IKSegmenter::new();
         let texts = _get_input_texts();
         for text in texts {
             let tokens = ik.tokenize(text, TokenMode::SEARCH);
@@ -226,7 +231,7 @@ mod test {
 
     #[test]
     fn test_thread_safe() {
-        let mut ik = IKSegmenter::new();
+        let ik = IKSegmenter::new();
         let t = thread::spawn(move || {
             println!("{:?}", ik.tokenize("明天星期几?", TokenMode::INDEX));
         });
