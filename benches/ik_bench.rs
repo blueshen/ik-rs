@@ -3,14 +3,14 @@ use ik_rs::core::ik_segmenter::{IKSegmenter, TokenMode};
 use ik_rs::dict::trie::Trie;
 use once_cell::sync::Lazy;
 use random_string;
-use std::sync::Mutex;
+use std::sync::RwLock;
 
-pub static GLOBAL_IK: Lazy<Mutex<IKSegmenter>> = Lazy::new(|| {
+pub static GLOBAL_IK: Lazy<RwLock<IKSegmenter>> = Lazy::new(|| {
     let ik = IKSegmenter::new();
-    Mutex::new(ik)
+    RwLock::new(ik)
 });
 
-pub static GLOBAL_TRIE: Lazy<Mutex<Trie>> = Lazy::new(|| {
+pub static GLOBAL_TRIE: Lazy<RwLock<Trie>> = Lazy::new(|| {
     let mut trie = Trie::new();
     trie.insert("Test");
     trie.insert("Tea");
@@ -23,19 +23,18 @@ pub static GLOBAL_TRIE: Lazy<Mutex<Trie>> = Lazy::new(|| {
         let r = random_string::generate(10, charset);
         trie.insert(r.as_str());
     }
-
-    Mutex::new(trie)
+    RwLock::new(trie)
 });
 
 // expect 312 ns
 fn trie_match() {
-    GLOBAL_TRIE.lock().unwrap().match_word("Back");
+    GLOBAL_TRIE.read().unwrap().match_word("Back");
 }
 
 // expect 17.8 µs
 fn ik_tokenize() {
     GLOBAL_IK
-        .lock()
+        .read()
         .unwrap()
         .tokenize("中华人民共和国有960万平方公里土地", TokenMode::SEARCH);
 }
