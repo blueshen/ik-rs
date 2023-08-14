@@ -64,12 +64,15 @@ impl IKSegmenter {
                 _ => {}
             }
 
-            if !GLOBAL_DICT.read().map_or(false, |dict|{
-                dict.is_stop_word(
+            let lock_guard = {cfg_if::cfg_if! {
+                if #[cfg(feature="use-parking-lot")] {Some(GLOBAL_DICT.read())}
+                else /*if #[cfg(feature="use-std-sync")]*/ {GLOBAL_DICT.read().map_or(None,|x|Some(x))}
+            }};
+            if lock_guard.is_none() || !lock_guard.is_some_and(|x|x.is_stop_word(
                     input,
                     result_value.begin_pos(),
-                    result_value.len())
-            }) {
+                    result_value.len()))
+            {
                 result_value.parse_lexeme_text(input);
                 final_results.push(result_value.clone())
             }

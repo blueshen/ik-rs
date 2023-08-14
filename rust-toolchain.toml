@@ -1,0 +1,2 @@
+[toolchain]
+channel = "nightly-2023-06-15"  # solve the issue that no feature `proc_macro_span_shrink` in proc-macro2-1.0.57 after updated to `nightly-2023-07-01`

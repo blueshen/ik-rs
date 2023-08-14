@@ -98,11 +98,20 @@ impl CnQuantifierSegmenter {
             let char_count = utf8_len(input);
             match curr_char_type {
                 CharType::CHINESE => {
-                    let hits = GLOBAL_DICT.read().map_or(vec![], |dict|dict.match_in_quantifier_dict(
+                    let lock_guard = {cfg_if::cfg_if! {
+                        if #[cfg(feature="use-parking-lot")] {GLOBAL_DICT.read()}
+                        else /*if #[cfg(feature="use-std-sync")]*/ {
+                            match GLOBAL_DICT.read() {
+                                Err(_err) => return,
+                                Ok(lck) => lck
+                            }
+                        }
+                    }};
+                    let hits = lock_guard.match_in_quantifier_dict(
                         input,
                         cursor,
                         char_count - cursor
-                    ));
+                    );
                     for hit in hits.iter() {
                         if hit.is_match() {
                             let new_lexeme = Lexeme::new(hit.pos(), LexemeType::COUNT);

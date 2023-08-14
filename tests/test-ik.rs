@@ -2,7 +2,14 @@
 mod test {
     use ik_rs::core::ik_segmenter::{IKSegmenter, TokenMode};
     use once_cell::sync::Lazy;
-    use std::sync::RwLock;
+
+    cfg_if::cfg_if! {
+        if #[cfg(feature="use-parking-lot")] {
+            use parking_lot::RwLock;
+        } else /*if #[cfg(feature="use-std-sync")]*/ {
+            use std::sync::RwLock;
+        }
+    }
 
     pub static GLOBAL_IK: Lazy<RwLock<IKSegmenter>> = Lazy::new(|| {
         let ik = IKSegmenter::new();
@@ -81,7 +88,11 @@ mod test {
     }
     // SEARCH Mode
     fn assert_search_token(text: &str, expect: Vec<&str>) {
-        let tokens = GLOBAL_IK.read().unwrap().tokenize(text, TokenMode::SEARCH);
+        let lock_guard = {cfg_if::cfg_if!{
+            if #[cfg(feature="use-parking-lot")] {GLOBAL_IK.read()}
+            else /*#cfg(feature="use-std-sync")*/ {GLOBAL_IK.read().unwrap()}
+        }};
+        let tokens = lock_guard.tokenize(text, TokenMode::SEARCH);
         let mut token_texts = Vec::new();
         for token in tokens.iter() {
             // println!("{:?}", token);
@@ -92,7 +103,11 @@ mod test {
 
     // INDEX Mode
     fn assert_index_token(text: &str, expect: Vec<&str>) {
-        let tokens = GLOBAL_IK.read().unwrap().tokenize(text, TokenMode::INDEX);
+        let lock_guard = {cfg_if::cfg_if!{
+            if #[cfg(feature="use-parking-lot")] {GLOBAL_IK.read()}
+            else /*#cfg(feature="use-std-sync")*/ {GLOBAL_IK.read().unwrap()}
+        }};
+        let tokens = lock_guard.tokenize(text, TokenMode::INDEX);
         let mut token_texts = Vec::new();
         for token in tokens.iter() {
             // println!("{:?}", token);
