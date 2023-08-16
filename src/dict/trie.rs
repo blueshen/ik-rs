@@ -1,6 +1,7 @@
-use crate::dict::hit::Hit;
 use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
+
+use crate::dict::hit::Hit;
 
 #[derive(Debug)]
 pub struct TrieNode {
@@ -206,8 +207,9 @@ impl Trie {
 
 #[cfg(test)]
 mod test {
-    use super::*;
     use std::thread;
+
+    use super::*;
     #[test]
     fn trie_exist() {
         let mut trie = Trie::new();

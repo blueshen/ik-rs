@@ -1,11 +1,12 @@
-use crate::config::configuration::Configuration;
-use serde;
-use serde::{Deserialize, Serialize};
-use serde_yaml;
 use std::fs::File;
 use std::io::{BufReader, Read};
 use std::path::Path;
 use std::vec::Vec;
+
+use serde::{Deserialize, Serialize};
+use {serde, serde_yaml};
+
+use crate::config::configuration::Configuration;
 
 // 分词器配置文件路径
 const IK_CONFIG_NAME: &str = "ik.yml";
@@ -79,8 +80,9 @@ impl Configuration for DefaultConfig {
 
 #[cfg(test)]
 mod test {
-    use super::*;
     use log;
+
+    use super::*;
 
     #[test]
     pub fn test_config() {

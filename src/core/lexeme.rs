@@ -1,6 +1,7 @@
-use crate::core::char_util::utf8_slice;
 use std::cmp::Ordering;
 use std::ops::Range;
+
+use crate::core::char_util::utf8_slice;
 
 #[derive(Debug, Clone)]
 pub enum LexemeType {

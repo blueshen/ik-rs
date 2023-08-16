@@ -1,11 +1,13 @@
+use std::fs::File;
+use std::io::{BufRead, BufReader};
+
+use once_cell;
+use once_cell::sync::Lazy;
+
 use crate::config::configuration::Configuration;
 use crate::config::default_config::DefaultConfig;
 use crate::dict::hit::Hit;
 use crate::dict::trie::Trie;
-use once_cell;
-use once_cell::sync::Lazy;
-use std::fs::File;
-use std::io::{BufRead, BufReader};
 
 cfg_if::cfg_if! {
     if #[cfg(feature="use-parking-lot")] {
@@ -154,8 +156,9 @@ impl Dictionary {
 
 #[cfg(test)]
 mod test {
-    use super::*;
     use std::thread;
+
+    use super::*;
     #[test]
     fn test_dictionary() {
         let mut dictionary = Dictionary::new();

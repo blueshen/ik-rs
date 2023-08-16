@@ -88,10 +88,12 @@ mod test {
     }
     // SEARCH Mode
     fn assert_search_token(text: &str, expect: Vec<&str>) {
-        let lock_guard = {cfg_if::cfg_if!{
-            if #[cfg(feature="use-parking-lot")] {GLOBAL_IK.read()}
-            else /*#cfg(feature="use-std-sync")*/ {GLOBAL_IK.read().unwrap()}
-        }};
+        let lock_guard = {
+            cfg_if::cfg_if! {
+                if #[cfg(feature="use-parking-lot")] {GLOBAL_IK.read()}
+                else /*#cfg(feature="use-std-sync")*/ {GLOBAL_IK.read().unwrap()}
+            }
+        };
         let tokens = lock_guard.tokenize(text, TokenMode::SEARCH);
         let mut token_texts = Vec::new();
         for token in tokens.iter() {
@@ -103,10 +105,12 @@ mod test {
 
     // INDEX Mode
     fn assert_index_token(text: &str, expect: Vec<&str>) {
-        let lock_guard = {cfg_if::cfg_if!{
-            if #[cfg(feature="use-parking-lot")] {GLOBAL_IK.read()}
-            else /*#cfg(feature="use-std-sync")*/ {GLOBAL_IK.read().unwrap()}
-        }};
+        let lock_guard = {
+            cfg_if::cfg_if! {
+                if #[cfg(feature="use-parking-lot")] {GLOBAL_IK.read()}
+                else /*#cfg(feature="use-std-sync")*/ {GLOBAL_IK.read().unwrap()}
+            }
+        };
         let tokens = lock_guard.tokenize(text, TokenMode::INDEX);
         let mut token_texts = Vec::new();
         for token in tokens.iter() {

@@ -1,7 +1,8 @@
-use crate::core::lexeme::Lexeme;
-use crate::core::ordered_linked_list::{Link, OrderedLinkedList};
 use std::cmp::Ordering;
 use std::fmt::{Display, Formatter};
+
+use crate::core::lexeme::Lexeme;
+use crate::core::ordered_linked_list::{Link, OrderedLinkedList};
 
 pub struct LexemePath {
     begin: i32,

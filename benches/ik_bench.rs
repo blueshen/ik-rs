@@ -35,19 +35,23 @@ pub static GLOBAL_TRIE: Lazy<RwLock<Trie>> = Lazy::new(|| {
 
 // expect 312 ns
 fn trie_match() {
-    let lock_guard = {cfg_if::cfg_if!{
-        if #[cfg(feature="use-parking-lot")] {GLOBAL_TRIE.read()}
-        else /*if #[cfg(feature="use-std-sync")]*/ {GLOBAL_TRIE.read().unwrap()}
-    }};
+    let lock_guard = {
+        cfg_if::cfg_if! {
+            if #[cfg(feature="use-parking-lot")] {GLOBAL_TRIE.read()}
+            else /*if #[cfg(feature="use-std-sync")]*/ {GLOBAL_TRIE.read().unwrap()}
+        }
+    };
     lock_guard.match_word("Back");
 }
 
 // expect 17.8 µs
 fn ik_tokenize() {
-    let lock_guard = {cfg_if::cfg_if! {
-        if #[cfg(feature="use-parking-lot")] {GLOBAL_IK.read()}
-        else /*if #[cfg(feature="use-std-sync")]*/ {GLOBAL_IK.read().unwrap()}
-    }};
+    let lock_guard = {
+        cfg_if::cfg_if! {
+            if #[cfg(feature="use-parking-lot")] {GLOBAL_IK.read()}
+            else /*if #[cfg(feature="use-std-sync")]*/ {GLOBAL_IK.read().unwrap()}
+        }
+    };
     lock_guard.tokenize("中华人民共和国有960万平方公里土地", TokenMode::SEARCH);
 }
 

@@ -1,11 +1,10 @@
 // migrate from https://doc.rust-lang.org/src/alloc/collections/linked_list.rs.html
 use std::cmp::PartialOrd;
 use std::error::Error;
-use std::fmt;
 use std::fmt::{Debug, Display, Formatter};
 use std::marker::PhantomData;
-use std::mem;
 use std::ptr::NonNull;
+use std::{fmt, mem};
 
 #[derive(Debug, Clone)]
 pub struct IndexOutOfRangeError;
@@ -322,9 +321,7 @@ impl<T: PartialOrd> OrderedLinkedList<T> {
     }
 
     pub fn contains(&self, elem: &T) -> bool
-    where
-        T: PartialEq<T>,
-    {
+    where T: PartialEq<T> {
         self.iter().any(|x| x == elem)
     }
 
@@ -600,9 +597,10 @@ impl<'a, T: PartialOrd> DoubleEndedIterator for IterMut<'a, T> {
 
 #[cfg(test)]
 mod test {
+    use log;
+
     use super::OrderedLinkedList;
     use crate::core::lexeme::{Lexeme, LexemeType};
-    use log;
 
     #[test]
     fn test_compiling() {}

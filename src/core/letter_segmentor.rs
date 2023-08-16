@@ -1,5 +1,4 @@
-use crate::core::char_util::utf8_len;
-use crate::core::char_util::CharType;
+use crate::core::char_util::{utf8_len, CharType};
 use crate::core::lexeme::{Lexeme, LexemeType};
 use crate::core::ordered_linked_list::OrderedLinkedList;
 use crate::core::segmentor::Segmenter;

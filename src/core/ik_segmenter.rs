@@ -1,3 +1,5 @@
+use std::collections::{HashMap, LinkedList};
+
 use crate::core::char_util::{regularize_str, utf8_len, CharType};
 use crate::core::cjk_segmenter::CJKSegmenter;
 use crate::core::cn_quantifier_segmenter::CnQuantifierSegmenter;
@@ -8,7 +10,6 @@ use crate::core::lexeme_path::LexemePath;
 use crate::core::ordered_linked_list::OrderedLinkedList;
 use crate::core::segmentor::Segmenter;
 use crate::dict::dictionary::GLOBAL_DICT;
-use std::collections::{HashMap, LinkedList};
 
 #[derive(Debug, Clone)]
 pub enum TokenMode {
@@ -39,7 +40,7 @@ impl IKSegmenter {
         ]
     }
 
-    pub fn tokenize(&/*mut*/ self, text: &str, mode: TokenMode) -> Vec<Lexeme> {
+    pub fn tokenize(&self, text: &str, mode: TokenMode) -> Vec<Lexeme> {
         let regular_str = regularize_str(text);
         let input = regular_str.as_str();
         let mut origin_lexemes = OrderedLinkedList::<Lexeme>::new();
@@ -64,14 +65,16 @@ impl IKSegmenter {
                 _ => {}
             }
 
-            let lock_guard = {cfg_if::cfg_if! {
-                if #[cfg(feature="use-parking-lot")] {Some(GLOBAL_DICT.read())}
-                else /*if #[cfg(feature="use-std-sync")]*/ {GLOBAL_DICT.read().map_or(None,|x|Some(x))}
-            }};
-            if lock_guard.is_none() || !lock_guard.is_some_and(|x|x.is_stop_word(
-                    input,
-                    result_value.begin_pos(),
-                    result_value.len()))
+            let lock_guard = {
+                cfg_if::cfg_if! {
+                    if #[cfg(feature="use-parking-lot")] {Some(GLOBAL_DICT.read())}
+                    else /*if #[cfg(feature="use-std-sync")]*/ {GLOBAL_DICT.read().map_or(None,|x|Some(x))}
+                }
+            };
+            if lock_guard.is_none()
+                || !lock_guard.is_some_and(|x| {
+                    x.is_stop_word(input, result_value.begin_pos(), result_value.len())
+                })
             {
                 result_value.parse_lexeme_text(input);
                 final_results.push(result_value.clone())
@@ -189,9 +192,11 @@ impl IKSegmenter {
 
 #[cfg(test)]
 mod test {
-    use super::*;
-    use log;
     use std::thread;
+
+    use log;
+
+    use super::*;
 
     #[test]
     fn test_index_segment() {

@@ -1,8 +1,9 @@
+use std::collections::{BTreeSet, HashMap};
+
 use crate::core::ik_segmenter::TokenMode;
 use crate::core::lexeme::Lexeme;
 use crate::core::lexeme_path::LexemePath;
 use crate::core::ordered_linked_list::{Link, OrderedLinkedList};
-use std::collections::{BTreeSet, HashMap};
 
 #[derive(Default)]
 pub struct IKArbitrator {}
