@@ -6,14 +6,21 @@ use once_cell;
 use once_cell::sync::Lazy;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
-use std::sync::Mutex;
 
-pub static GLOBAL_DICT: Lazy<Mutex<Dictionary>> = Lazy::new(|| {
+cfg_if::cfg_if! {
+    if #[cfg(feature="use-parking-lot")] {
+        use parking_lot::RwLock;
+    } else /*if #[cfg(feature="use-std-sync")]*/ {
+        use std::sync::RwLock;
+    }
+}
+
+pub static GLOBAL_DICT: Lazy<RwLock<Dictionary>> = Lazy::new(|| {
     let mut dict = Dictionary::new();
     if !dict.init() {
         panic!("dict init fatal error")
     }
-    Mutex::new(dict)
+    RwLock::new(dict)
 });
 
 fn load(dict: &mut Trie, file_path: &str) -> bool {

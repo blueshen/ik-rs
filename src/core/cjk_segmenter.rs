@@ -22,10 +22,19 @@ impl Segmenter for CJKSegmenter {
             CharType::USELESS => {}
             _ => {
                 let char_count = utf8_len(input);
-                let hits = GLOBAL_DICT.lock().unwrap().match_in_main_dict_with_offset(
+                let lock_guard = {cfg_if::cfg_if! {
+                    if #[cfg(feature="use-parking-lot")] {GLOBAL_DICT.read()}
+                    else /*if #[cfg(feature="use-std-sync")]*/ {
+                        match GLOBAL_DICT.read() {
+                            Err(_err) => return,
+                            Ok(lck) => lck
+                        }
+                    }
+                }};
+                let hits = lock_guard.match_in_main_dict_with_offset(
                     input,
                     cursor,
-                    char_count - cursor,
+                    char_count - cursor
                 );
                 for hit in hits.iter() {
                     if hit.is_match() {

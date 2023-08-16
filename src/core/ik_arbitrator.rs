@@ -8,7 +8,7 @@ use std::collections::{BTreeSet, HashMap};
 pub struct IKArbitrator {}
 impl IKArbitrator {
     pub fn process(
-        &mut self,
+        &self,
         orgin_lexemes: &OrderedLinkedList<Lexeme>,
         mode: &TokenMode,
     ) -> HashMap<usize, LexemePath> {
