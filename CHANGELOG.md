@@ -1,6 +1,6 @@
 # ik-rs
 ## 0.6.0
-use rwlock i
+use rwlock instead of mutex
 
 ## 0.5.0
 performance +20%
