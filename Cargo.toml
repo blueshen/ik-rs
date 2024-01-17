@@ -1,6 +1,6 @@
 [package]
 name = "ik-rs"
-version = "0.6.1"
+version = "0.7.0"
 authors = ["blueshen <zhiyi.shen@gmail.com>"]
 license = "LGPL-2.1-only"
 categories = ["database-implementations", "data-structures"]

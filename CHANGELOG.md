@@ -1,4 +1,6 @@
 # ik-rs
+## 0.7.0
+nothing
 ## 0.6.0
 use rwlock instead of mutex
 
